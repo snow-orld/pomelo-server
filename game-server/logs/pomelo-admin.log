@@ -1,0 +1,60 @@
+[2017-02-26 11:40:45.104] [INFO] pomelo-admin - [32m[MqttServer] [39m[MqttServer] listen on 3005
+[2017-02-26 11:40:45.126] [INFO] pomelo-admin - [32m[ConsoleService] [39mtry to connect master: "master", "127.0.0.1", 3005
+[2017-02-26 11:40:45.568] [INFO] pomelo-admin - [32m[ConsoleService] [39mtry to connect master: "connector", "127.0.0.1", 3005
+[2017-02-26 14:05:54.680] [INFO] pomelo-admin - [32m[MqttServer] [39m[MqttServer] listen on 3005
+[2017-02-26 14:05:54.695] [INFO] pomelo-admin - [32m[ConsoleService] [39mtry to connect master: "master", "127.0.0.1", 3005
+[2017-02-26 14:05:55.145] [INFO] pomelo-admin - [32m[ConsoleService] [39mtry to connect master: "connector", "127.0.0.1", 3005
+[2017-02-27 16:30:34.635] [INFO] pomelo-admin - [32m[MqttServer] [39m[MqttServer] listen on 3005
+[2017-02-27 16:30:34.665] [INFO] pomelo-admin - [32m[ConsoleService] [39mtry to connect master: "master", "127.0.0.1", 3005
+[2017-02-27 16:30:35.383] [INFO] pomelo-admin - [32m[ConsoleService] [39mtry to connect master: "gate", "127.0.0.1", 3005
+[2017-02-27 16:30:35.536] [ERROR] pomelo-admin - [31m[MonitorAgent] [39mserver "gate-server-1" "gate" register master failed
+[2017-02-27 16:30:35.540] [ERROR] pomelo-admin - [31m[MqttClient] [39mmqtt socket is disconnect, remote server host: 127.0.0.1, port: 3005
+[2017-02-27 16:30:35.510] [INFO] pomelo-admin - [32m[ConsoleService] [39mtry to connect master: "connector", "127.0.0.1", 3005
+[2017-02-27 16:30:36.544] [INFO] pomelo-admin - [32m[MqttClient] [39mreconnect delay 1 s
+[2017-02-27 16:30:36.589] [DEBUG] pomelo-admin - [36m[MasterSocket] [39mrepush qos message {"2":{"moduleId":"__monitorwatcher__","msg":{"action":"replaceServer","servers":{"connector-server-1":{"main":"/home/alice/Documents/pomelo/pomelo-server/game-server/app.js","env":"development","id":"connector-server-1","host":"127.0.0.1","port":3150,"clientHost":"127.0.0.1","clientPort":3010,"frontend":"true","serverType":"connector","pid":7642},"gate-server-1":{"main":"/home/alice/Documents/pomelo/pomelo-server/game-server/app.js","env":"development","id":"gate-server-1","host":"127.0.0.1","clientPort":3014,"frontend":"true","serverType":"gate"}}}}}
+[2017-02-27 16:30:36.688] [WARN] pomelo-admin - [33m[MasterSocket] [39munknown resp id:2
+[2017-02-27 16:36:23.335] [INFO] pomelo-admin - [32m[MqttServer] [39m[MqttServer] listen on 3005
+[2017-02-27 16:36:23.369] [INFO] pomelo-admin - [32m[ConsoleService] [39mtry to connect master: "master", "127.0.0.1", 3005
+[2017-02-27 16:36:24.165] [INFO] pomelo-admin - [32m[ConsoleService] [39mtry to connect master: "gate", "127.0.0.1", 3005
+[2017-02-27 16:36:24.191] [INFO] pomelo-admin - [32m[ConsoleService] [39mtry to connect master: "connector", "127.0.0.1", 3005
+[2017-02-27 16:36:24.312] [ERROR] pomelo-admin - [31m[MonitorAgent] [39mserver "gate-server-1" "gate" register master failed
+[2017-02-27 16:36:24.315] [ERROR] pomelo-admin - [31m[MqttClient] [39mmqtt socket is disconnect, remote server host: 127.0.0.1, port: 3005
+[2017-02-27 16:36:25.317] [INFO] pomelo-admin - [32m[MqttClient] [39mreconnect delay 1 s
+[2017-02-27 16:36:25.363] [DEBUG] pomelo-admin - [36m[MasterSocket] [39mrepush qos message {"2":{"moduleId":"__monitorwatcher__","msg":{"action":"replaceServer","servers":{"connector-server-1":{"main":"/home/alice/Documents/pomelo/pomelo-server/game-server/app.js","env":"development","id":"connector-server-1","host":"127.0.0.1","port":3150,"clientHost":"127.0.0.1","clientPort":3010,"frontend":"true","serverType":"connector","pid":7699},"gate-server-1":{"main":"/home/alice/Documents/pomelo/pomelo-server/game-server/app.js","env":"development","id":"gate-server-1","host":"127.0.0.1","clientPort":3014,"frontend":"true","serverType":"gate"}}}}}
+[2017-02-27 16:36:25.464] [WARN] pomelo-admin - [33m[MasterSocket] [39munknown resp id:2
+[2017-02-27 16:36:53.362] [INFO] pomelo-admin - [32m[MqttServer] [39m[MqttServer] listen on 3005
+[2017-02-27 16:36:53.392] [INFO] pomelo-admin - [32m[ConsoleService] [39mtry to connect master: "master", "127.0.0.1", 3005
+[2017-02-27 16:36:54.187] [INFO] pomelo-admin - [32m[ConsoleService] [39mtry to connect master: "gate", "127.0.0.1", 3005
+[2017-02-27 16:36:54.217] [INFO] pomelo-admin - [32m[ConsoleService] [39mtry to connect master: "connector", "127.0.0.1", 3005
+[2017-02-27 16:36:54.320] [ERROR] pomelo-admin - [31m[MonitorAgent] [39mserver "gate-server-1" "gate" register master failed
+[2017-02-27 16:36:54.320] [ERROR] pomelo-admin - [31m[MqttClient] [39mmqtt socket is disconnect, remote server host: 127.0.0.1, port: 3005
+[2017-02-27 16:36:55.322] [INFO] pomelo-admin - [32m[MqttClient] [39mreconnect delay 1 s
+[2017-02-27 16:36:55.365] [DEBUG] pomelo-admin - [36m[MasterSocket] [39mrepush qos message {"2":{"moduleId":"__monitorwatcher__","msg":{"action":"replaceServer","servers":{"connector-server-1":{"main":"/home/alice/Documents/pomelo/pomelo-server/game-server/app.js","env":"development","id":"connector-server-1","host":"127.0.0.1","port":3150,"clientHost":"127.0.0.1","clientPort":3010,"frontend":"true","serverType":"connector","pid":7735},"gate-server-1":{"main":"/home/alice/Documents/pomelo/pomelo-server/game-server/app.js","env":"development","id":"gate-server-1","host":"127.0.0.1","clientPort":3014,"frontend":"true","serverType":"gate"}}}}}
+[2017-02-27 16:36:55.468] [WARN] pomelo-admin - [33m[MasterSocket] [39munknown resp id:2
+[2017-02-27 16:53:18.901] [INFO] pomelo-admin - [32m[MqttServer] [39m[MqttServer] listen on 3005
+[2017-02-27 16:53:18.928] [INFO] pomelo-admin - [32m[ConsoleService] [39mtry to connect master: "master", "127.0.0.1", 3005
+[2017-02-27 16:53:19.710] [INFO] pomelo-admin - [32m[ConsoleService] [39mtry to connect master: "connector", "127.0.0.1", 3005
+[2017-02-27 16:53:19.716] [INFO] pomelo-admin - [32m[ConsoleService] [39mtry to connect master: "gate", "127.0.0.1", 3005
+[2017-02-27 16:53:19.861] [ERROR] pomelo-admin - [31m[MonitorAgent] [39mserver "gate-server-1" "gate" register master failed
+[2017-02-27 16:53:19.863] [ERROR] pomelo-admin - [31m[MqttClient] [39mmqtt socket is disconnect, remote server host: 127.0.0.1, port: 3005
+[2017-02-27 16:53:20.865] [INFO] pomelo-admin - [32m[MqttClient] [39mreconnect delay 1 s
+[2017-02-27 16:53:20.913] [DEBUG] pomelo-admin - [36m[MasterSocket] [39mrepush qos message {"2":{"moduleId":"__monitorwatcher__","msg":{"action":"replaceServer","servers":{"connector-server-1":{"main":"/home/alice/Documents/pomelo/pomelo-server/game-server/app.js","env":"development","id":"connector-server-1","host":"127.0.0.1","port":3150,"clientHost":"127.0.0.1","clientPort":3010,"frontend":"true","serverType":"connector","pid":7845},"gate-server-1":{"main":"/home/alice/Documents/pomelo/pomelo-server/game-server/app.js","env":"development","id":"gate-server-1","host":"127.0.0.1","clientPort":3014,"frontend":"true","serverType":"gate"}}}}}
+[2017-02-27 16:53:21.016] [WARN] pomelo-admin - [33m[MasterSocket] [39munknown resp id:2
+[2017-02-27 16:53:26.895] [INFO] pomelo-admin - [32m[MqttServer] [39m[MqttServer] listen on 3005
+[2017-02-27 16:53:26.957] [INFO] pomelo-admin - [32m[ConsoleService] [39mtry to connect master: "master", "127.0.0.1", 3005
+[2017-02-27 16:53:27.873] [INFO] pomelo-admin - [32m[ConsoleService] [39mtry to connect master: "gate", "127.0.0.1", 3005
+[2017-02-27 16:53:27.916] [INFO] pomelo-admin - [32m[ConsoleService] [39mtry to connect master: "connector", "127.0.0.1", 3005
+[2017-02-27 16:53:28.032] [ERROR] pomelo-admin - [31m[MonitorAgent] [39mserver "gate-server-1" "gate" register master failed
+[2017-02-27 16:53:28.035] [ERROR] pomelo-admin - [31m[MqttClient] [39mmqtt socket is disconnect, remote server host: 127.0.0.1, port: 3005
+[2017-02-27 16:53:29.038] [INFO] pomelo-admin - [32m[MqttClient] [39mreconnect delay 1 s
+[2017-02-27 16:53:29.106] [DEBUG] pomelo-admin - [36m[MasterSocket] [39mrepush qos message {"2":{"moduleId":"__monitorwatcher__","msg":{"action":"replaceServer","servers":{"connector-server-1":{"main":"/home/alice/Documents/pomelo/pomelo-server/game-server/app.js","env":"development","id":"connector-server-1","host":"127.0.0.1","port":3150,"clientHost":"127.0.0.1","clientPort":3010,"frontend":"true","serverType":"connector","pid":7881},"gate-server-1":{"main":"/home/alice/Documents/pomelo/pomelo-server/game-server/app.js","env":"development","id":"gate-server-1","host":"127.0.0.1","clientPort":3014,"frontend":"true","serverType":"gate"}}}}}
+[2017-02-27 16:53:29.204] [WARN] pomelo-admin - [33m[MasterSocket] [39munknown resp id:2
+[2017-02-27 16:59:44.865] [INFO] pomelo-admin - [32m[MqttServer] [39m[MqttServer] listen on 3005
+[2017-02-27 16:59:44.926] [INFO] pomelo-admin - [32m[ConsoleService] [39mtry to connect master: "master", "127.0.0.1", 3005
+[2017-02-27 16:59:45.805] [INFO] pomelo-admin - [32m[ConsoleService] [39mtry to connect master: "gate", "127.0.0.1", 3005
+[2017-02-27 16:59:45.907] [INFO] pomelo-admin - [32m[ConsoleService] [39mtry to connect master: "connector", "127.0.0.1", 3005
+[2017-02-27 16:59:45.984] [ERROR] pomelo-admin - [31m[MonitorAgent] [39mserver "gate-server-1" "gate" register master failed
+[2017-02-27 16:59:45.985] [ERROR] pomelo-admin - [31m[MqttClient] [39mmqtt socket is disconnect, remote server host: 127.0.0.1, port: 3005
+[2017-02-27 16:59:46.988] [INFO] pomelo-admin - [32m[MqttClient] [39mreconnect delay 1 s
+[2017-02-27 16:59:47.042] [DEBUG] pomelo-admin - [36m[MasterSocket] [39mrepush qos message {"2":{"moduleId":"__monitorwatcher__","msg":{"action":"replaceServer","servers":{"connector-server-1":{"main":"/home/alice/Documents/pomelo/pomelo-server/game-server/app.js","env":"development","id":"connector-server-1","host":"127.0.0.1","port":3150,"clientHost":"127.0.0.1","clientPort":3010,"frontend":"true","serverType":"connector","pid":7983},"gate-server-1":{"main":"/home/alice/Documents/pomelo/pomelo-server/game-server/app.js","env":"development","id":"gate-server-1","host":"127.0.0.1","clientPort":3014,"frontend":"true","serverType":"gate"}}}}}
+[2017-02-27 16:59:47.148] [WARN] pomelo-admin - [33m[MasterSocket] [39munknown resp id:2
