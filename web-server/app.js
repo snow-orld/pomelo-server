@@ -107,6 +107,7 @@ app.post('/login', function(req, res) {
 		bcrypt.hash(password, user.salt, function(err, hash) {
 			if (err) {
 				console.log('[ERROR]bcrypt: restoring hash failed.');
+				res.send({code: 501});
 				return;
 			}
 			
@@ -115,7 +116,9 @@ app.post('/login', function(req, res) {
 				res.send({code: 501});
 			} else {
 				console.log(username + ' login!');
-				res.send({code: 200, token: Token.create(user.id, Date.now(), secret), uid: user.id});
+				var token = Token.create(user.id, Date.now(), secret);
+				console.log('[DEBUG]login: generated token=', token);
+				res.send({code: 200, token: token, uid: user.id});
 			}
 		});
 	});

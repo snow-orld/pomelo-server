@@ -4,6 +4,7 @@
   "private": false,
   "dependencies": {
     "bcrypt": "^1.0.2",
+    "crypto": "0.0.3",
     "everyauth": "0.3.0",
     "express": "3.4.8",
     "generic-pool": "2.4.6",

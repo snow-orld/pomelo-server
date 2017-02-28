@@ -6,7 +6,7 @@ define(['jquery', 'config'], function($, config) {
 		this.httpHost = location.href.replace(location.hash, '').replace('?', '');
 	}
 	
-	this.pomelo.on('websocket-error', function() {
+	pomelo.on('websocket-error', function() {
 		alert(httpHost + ': Websocket error!');
 	});
 	
@@ -17,6 +17,8 @@ define(['jquery', 'config'], function($, config) {
 		// bind events
 		$('#regBtn').on('click', register.bind(this));
 		$('#loginBtn').on('click', login.bind(this));
+		$('#testGate').on('click', testGateServer.bind(this));
+		$('#testConnector').on('click', testConnectorServer.bind(this));
 	};
 	
 	/**
@@ -79,7 +81,7 @@ define(['jquery', 'config'], function($, config) {
 		}
 		
 		$.post(httpHost + 'login', {username: username, password: password}, function(data) {
-			console.log('post result: ', data)
+			alert('Login web server returns:\ncode=' + data.code + '\ntoken=' + data.token + '\nuid=' + data.uid)
 			if (data.code === 501) {
 				alert('Username or password is invalid!');
 			}
@@ -101,6 +103,7 @@ define(['jquery', 'config'], function($, config) {
 	 * authEntry
 	 */
 	function authEntry(uid, token, callback) {
+		alert('authEntry\nuid=' + uid + '\ntoken=token');
 		queryEntry(uid, function(host, port) {
 			entry(host, port, token, callback);
 		});
@@ -174,6 +177,62 @@ define(['jquery', 'config'], function($, config) {
 			
 			});
 		});
+	}
+	
+	/**
+	 * test game server
+	 * route: gate.gateHandler.queryEntry
+	 */
+	function testGateServer() {
+		pomelo.init({
+				host: '192.168.239.140',
+				port: 3014,
+				log: true
+			}, function() {
+				pomelo.request('gate.gateHandler.queryEntry', {uid: '0'}, function(data) {
+					pomelo.disconnect();
+					
+					// alert the response from gateHandler
+					var alertMsg = 'gateHandler.queryEntry responds:\n';
+					for (var p in data) {
+						if (data.hasOwnProperty(p)) {
+							alertMsg += '\ndata.' + p + '=' + data[p];
+						}
+					}
+					alert(alertMsg);
+					
+				});
+			});
+	}
+	
+	/**
+	 * test connector server with auth server validating token
+	 * route: connector.entryHandler.entry
+	 */
+	function testConnectorServer() {
+		var msg = {};
+		var token = 'c8ab13f4bda17c7812ae1e47c2f69b63';
+		msg['token'] = token;
+		
+		pomelo.init({
+				host: '192.168.239.140',
+				//port: '3010',	// connector-server-1
+				port: '3011',	// connector-server-2
+				log: true
+			}, function() {
+				pomelo.request('connector.entryHandler.entry', msg, function(data) {
+				
+					// alert the response from connector.entryHandler
+					var alertMsg = 'connector.entryHandler.entry responds:\n';
+					for (var p in data) {
+						if (data.hasOwnProperty(p)) {
+							alertMsg += '\ndata.' + p + '=' + data[p];
+						}
+					}
+					alert(alertMsg);
+					
+				});
+			});
 	}
 	
 	return clientManager;

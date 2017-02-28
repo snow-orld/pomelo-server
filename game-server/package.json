@@ -1,9 +1,14 @@
 {
-    "name":"demo",
-    "version":"0.0.1",
-    "private":false,
-    "dependencies":{
-        "pomelo":"2.2.5"
-    }
+  "name": "demo",
+  "version": "0.0.1",
+  "private": false,
+  "dependencies": {
+    "async": "^2.1.5",
+    "bcrypt": "^1.0.2",
+    "generic-pool": "2.4.6",
+    "mysql": "^2.13.0",
+    "pomelo": "2.2.5",
+    "pomelo-logger": "^0.1.7",
+    "pomelo-sync-plugin": "0.0.2"
+  }
 }
-
