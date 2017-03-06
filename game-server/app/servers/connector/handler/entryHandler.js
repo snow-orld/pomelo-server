@@ -1,5 +1,5 @@
-var Code = require('../../../../../shared/code');
-//var userDao = require('../../../dao/userDao');	// used for get player info by uid
+var Code = require('../../../../../shared/code');	// 3/5/17: carModelHandler uses consts/consts for code. Unify the two!
+var userDao = require('../../../dao/userDao');	// used for get player info by uid
 //var channelUtil = require('../../../util/channelUtil');	// used for chat to get global channel name
 //var utils = require('../../../util/utils');	// used for player leaving area server
 var async = require('async');
@@ -55,7 +55,7 @@ Handler.prototype.entry = function(msg, session, next) {
 			
 			uid = user.id;
 			
-			session.bind(uid, cb);
+			userDao.getPlayersByUid(user.id, cb);
 			
 			// DEBUG ~ begin
 			var debugStr = '[DEBUG]entry func @ connector.entryHandler: token validated. user is {'
@@ -64,24 +64,71 @@ Handler.prototype.entry = function(msg, session, next) {
 			}
 			debugStr += '}';
 			console.log(debugStr);
-			
-			debugStr = '[DEBUG]entry func @ connector.entryHandler: session binded. session is {'
-			debugStr += session;
-			console.log(debugStr);
 			// DEBUG ~ end
 			
+		}, 
+		function(res, cb) {
+			// generate session and register chat status - till the end of async.waterfall
+			players = res;
+			// DEBUG ~ begin
+			var debugStr = '[DEBUG]entry func @ connector.entryHandler: got players by uid. player is {'
+			for (var p in players[0]) {
+				debugStr += p + ':' + players[0][p] + ',';
+			}
+			debugStr += '}';
+			console.log(debugStr);
+			// DEBUG ~ end
+			// close all sessions associated with uid
+			self.app.get('sessionService').kick(uid, cb);
+		}, 
+		function(cb) {
+			session.bind(uid, cb);
+		}, 
+		function(cb) {
+			if (!players || players.length === 0) {
+				next(null, {code: Code.OK});
+				return;
+			}
 			
-		}
+			player = players[0];
+			
+			//session.set('serverId', self.app.get('areaIdMap')[player.areaId]);
+			session.set('playername', player.name);
+			session.set('playerId', player.id);
+			session.on('closed', onUserLeave.bind(null, self.app));
+			session.pushAll(cb);
+		}/*,
+		function(cb) {
+			self.app.rpc.chat.chatRemote.add(session, player.userId, player.name,
+				channelUtil.getGlobalChannelName(), cb);
+		}*/
 	], function(err) {
 		if (err) {
 			next(err, {code: Code.FAIL});
 			return;
 		}
+		
+		// return user or player info back to client
+		next(null, {code: Code.OK, player: players ? players[0] : null});
 	});
-	
-	// for test connector server only - send response before async.waterfall completes
-  next(null, {code: Code.OK, msg: 'connector server is ok.'});
 };
+
+// 3/5/17 ME: session closed handler differs the one in connector.carModelHdler.createPlayer. HOW and WHY? A: does not pass app as param. get app from pomelo.app
+var onUserLeave = function(app, session, reason) {
+	if (!session || !session.uid) {
+		return;
+	}
+	
+	/*
+	utils.myPrint('1 ~ connector.entryHandler.onUserLeaving is running ...');
+	app.rpc.area.playerRemote.playerLeave(session, {playerId: session.get('palyerId'), instanceId: session.get('instanceId')}, function(err) {
+		if (!!err) {
+			logger.error('user leave error! %j', err);
+		}
+	});
+	app.rpc.chat.chatRemote.kick(session, session.uid, null);
+	*/
+}
 
 /**
  * Publish route for mqtt connector.

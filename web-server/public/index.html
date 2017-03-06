@@ -29,33 +29,51 @@
           Welcome to Pomelo
         </div>
       </div>
-      <div class="g-form" id="userRegFrame">
-	    	Register:
-	    	<form>
-					<p>Username:<input id="regName" type="text"/>
-					<p>Password:<input id="regPwd" type="password" />
-					<p>Confirm Password:<input id="regCpwd" type="password" />
-					<p><button id="regBtn">Register</button>					
-				</form>
-    	</div>
-	    <div class="g-form" id="userLoginFrame">
-	    	Login:
-	    	<form>
-					<p>Username:<input id="loginName" type="text"/>
-					<p>Password:<input id="loginPwd" type="password" />
-					<p><button id="loginBtn">Login</button>
-				</form>
-	    </div>
+      
+      <!--@login/register -->
+      <div id="loginPanel">
+		    <div class="g-form" id="userRegFrame">
+			  	Register:
+			  	<form>
+						<p>Username:<input id="regName" type="text"/>
+						<p>Password:<input id="regPwd" type="password" />
+						<p>Confirm Password:<input id="regCpwd" type="password" />
+						<p><button id="regBtn">Register</button>					
+					</form>
+		  	</div>
+			  <div class="g-form" id="userLoginFrame">
+			  	Login:
+			  	<form>
+						<p>Username:<input id="loginName" type="text"/>
+						<p>Password:<input id="loginPwd" type="password" />
+						<p><button id="loginBtn">Login</button>
+					</form>
+			  </div>
+      </div>
+      
+ 			<!-- @Pannel for creating new player: give it a new name; may select between car models potentially -->
+ 			<div class="g-hide" id="carSelectPanel">
+ 				<div class="g-form">
+ 					<form>
+ 						<p>Player Name: <input id="playerName" type="text" />
+ 						<p><button id="newPlayerBtn">Create Player</button>
+ 					<form>
+ 				</div>
+ 			</div>
+ 			
       <div class="g-link">
         Home:
         <a href="https://github.com/NetEase/pomelo">https://github.com/NetEase/pomelo</a>
       </div>
+      
+      <!-- @Server Test Btns -->
       <div class="g-button">
         <input id="testGate" type="button" value="Test Gate Server" />
       </div>
       <div class="g-button">
       	<input id="testConnector" type="button" value="Test Connector Server" />
       </div>
+    
     </div>
   </body>
 </html>

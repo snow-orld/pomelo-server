@@ -65,6 +65,10 @@
   text-align: center;
 }
 
+.g-hide {
+	display: none;
+}
+
 a:link {
   color: #006699;
   text-decoration: none;

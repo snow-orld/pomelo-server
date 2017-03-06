@@ -2,6 +2,8 @@ var pomelo = require('pomelo');
 var bcrypt = require('bcrypt');
 var utils = require('../util/utils');
 var User = require('../domain/user');
+var Player = require('../domain/entity/player');
+var consts = require('../consts/consts');
 
 var userDao = module.exports;
 
@@ -152,6 +154,95 @@ userDao.createUser = function(username, passwrod, from ,cb) {
 			
 		});
 	});
+};
+
+
+/**
+ * Get an user's all Players by userId. Used in connector.entryHandler.entry.
+ *
+ * @param 	{string} 		uid		user id
+ * @param		{function}	cb		callback
+ *
+ */
+userDao.getPlayersByUid = function(uid, cb) {
+	var sql = 'select * from Player where userId = ?';
+	var args = [uid];
 	
-}
- 
+	pomelo.app.get('dbclient').query(sql, args, function(err, res) {
+		if (err) {
+			utils.invokeCallback(cb, err.message, null);
+			return;
+		}
+		
+		if (!res || res.length <= 0) {
+			utils.invokeCallback(cb, null, []);
+			return;
+		} else {
+			utils.invokeCallback(cb, null, res);
+		}
+	});
+};
+
+/**
+ * Get player by player name. Used in connector.carModleHandler.createPlayer to check if duplicate name.
+ *
+ * @param		{string}		name		Player name
+ * @param		{function}	cb			callback function
+ *
+ */
+userDao.getPlayerByName = function(name, cb) {
+	var sql = 'select * from Player where name = ?';
+	var args = [name];
+	
+	pomelo.app.get('dbclient').query(sql, args, function(err, res) {
+		if (err !== null) {
+			utils.invokeCallback(cb, err.message, null);
+		} else if (!res || res.length <= 0) {
+			utils.invokeCallback(cb, null, null);
+		} else {
+			// 3/5/17 ME ASKS: why create new user with rs? but directly returns result in getPlayersByUid()?
+			utils.invokeCallback(cb, null, new Player(res[0]));
+		}
+	});
+};
+
+/**
+ * Create a new player
+ *
+ * @param 	{String}		uid		User id
+ * @param		{String}		name	Player's name in the game
+ * @param		{function}	cb		Callback function
+ *
+ */
+userDao.createPlayer = function(uid, name, cb) {
+	// Player(id, userId, name, x, y, areaId, kindId, kindName) 
+	// 3/5/17 ME: kindId, kindName not used for now, leave them to default values ('0000', 'universal user')
+	var sql = 'insert into Player (userId, name, x, y, areaId, kindId, kindName) values (?,?,?,?,?,?,?)';
+	var born = consts.BornPlace;
+	var x = born.x + Math.floor(Math.random()*born.width);
+	var y = born.y + Math.floor(Math.random()*born.height);
+	var areaId = consts.PLAYER.initAreaId;	// 3/5/17 ME: default areaId for entity constructor is 1; but this is not read from db getPlayerByName. this acctually the very first step to CREATE player data!
+	// 3/6/17: kindId and kindName can be accessed from dataApi, to be implemented in future extension
+	var kindId = '0000';
+	var kindName = 'universal user';
+	var args = [uid, name, x, y, areaId, kindId, kindName];
+	
+	pomelo.app.get('dbclient').insert(sql, args, function(err, res) {
+		if (err !== null) {
+			logger.error('create player failed!' +  err.message);
+			logger.error(err);
+			utils.invokeCallback(cb, err.message, null);
+		} else {
+			var player = new Player({
+				id: res.insertId,
+				userId: uid,
+				name: name,
+				// 3/5/17 ME: not spcifying x,y in lop. entity create lacks of x,y? OR new player is randomly spawn into map position?
+				// 3/6/17 A1: returned player is used for setting session, session does not need store position
+				kindId: kindId,
+				kindName: kindName
+			});
+			utils.invokeCallback(cb, null, player);
+		}
+	});
+};

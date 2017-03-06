@@ -1,4 +1,4 @@
-define(['jquery', 'config'], function($, config) {
+define(['jquery', 'config', 'switchManager'], function($, config, switchManager) {
 
 	var clientManager = function() {
 		this.pomelo = window.pomelo;
@@ -17,6 +17,8 @@ define(['jquery', 'config'], function($, config) {
 		// bind events
 		$('#regBtn').on('click', register.bind(this));
 		$('#loginBtn').on('click', login.bind(this));
+		$('#newPlayerBtn').on('click', createPlayer);
+		// test server buttons
 		$('#testGate').on('click', testGateServer.bind(this));
 		$('#testConnector').on('click', testConnectorServer.bind(this));
 	};
@@ -45,7 +47,7 @@ define(['jquery', 'config'], function($, config) {
 		}
 		
 		$.post(httpHost + 'register', {username: username, password: password}, function(data) {
-			alert('post result: ', data);
+			alert('$.post result: ', data);
 			if (data.code === 501) {
 				alert("User already exists!");
 				return;
@@ -59,7 +61,6 @@ define(['jquery', 'config'], function($, config) {
 				alert(username + ' registered and logged in!');
 			});
 		});
-
 	}
 	
 	/**
@@ -81,12 +82,14 @@ define(['jquery', 'config'], function($, config) {
 		}
 		
 		$.post(httpHost + 'login', {username: username, password: password}, function(data) {
-			alert('Login web server returns:\ncode=' + data.code + '\ntoken=' + data.token + '\nuid=' + data.uid)
+		
 			if (data.code === 501) {
 				alert('Username or password is invalid!');
+				return;
 			}
 			if (data.code !== 200) {
 				alert('User does not exist!');
+				return;
 			}
 			
 			authEntry(data.uid, data.token, function() {
@@ -99,11 +102,14 @@ define(['jquery', 'config'], function($, config) {
 		});
 	}
 	
+	function ajaxError(jqXHR, textStatus, errorThrown) {
+		alert('$.post ' + textStatus + ' : ' + errorThrown);
+	}
+	
 	/**
 	 * authEntry
 	 */
 	function authEntry(uid, token, callback) {
-		alert('authEntry\nuid=' + uid + '\ntoken=token');
 		queryEntry(uid, function(host, port) {
 			entry(host, port, token, callback);
 		});
@@ -122,13 +128,14 @@ define(['jquery', 'config'], function($, config) {
 	function queryEntry(uid, callback) {
 		pomelo.init({host: config.GATE_HOST, port: config.GATE_PORT, log: true}, function() {
 			pomelo.request('gate.gateHandler.queryEntry', {uid: uid}, function(data) {
+				alertResponse('gate.geteHandler.queryEntry', data);
 				pomelo.disconnect();
 				
 				if (data.code === 2001) {
 					alert('Server error!');
 					return;
 				}
-				
+				alert(callback)
 				callback(data.host, data.port);
 			});
 		});
@@ -154,13 +161,14 @@ define(['jquery', 'config'], function($, config) {
 		
 		pomelo.init({host: host, port: port, log: true}, function() {
 			pomelo.request('connector.entryHandler.entry', {token: token}, function(data) {
+				var player = data.player;
 				
 				if (callback) {
 					callback(data.code);
 				}
 				
 				if (data.code == 1001) {
-					alert('Login fail!');
+					alert('Login failed!');
 					return;
 				} else if (data.code == 1003) {
 						alert('Username does not exist!');
@@ -168,15 +176,61 @@ define(['jquery', 'config'], function($, config) {
 				}
 				
 				if (data.code != 200) {
-					alert('Login Failed!');
+					alert('Login failed!');
 					return;
 				}
 				
 				// init handler
-				loginMsgHandler.init();
-			
+				//loginMsgHandler.init();
+				//gameMsgHandler.init();
+				
+				if (!player || player.id <= 0) {
+					// switch view to create new player
+					switchManager.selectView('carSelectPanel');
+				} else {
+					// load resource and enter the user into scene
+					afterLogin(data);
+				}
+				
 			});
 		});
+	}
+	
+	/**
+	 * create new player if not any returned from server
+	 */
+	function createPlayer() {
+		var name = $('#playerName').val().trim();
+		
+		if (!name) {
+			alert("Player name is required!");
+		} else if (name.length > 9) {
+			alert("Player 's name length is too long! (>9)");
+		} else {
+			pomelo.request('connector.carModelHandler.createPlayer', {name: name}, function(data) {
+				if (data.code == 500) {
+					alert("Create player fails!");
+					return;
+				}
+				
+				// alert the response from connector.entryHandler
+				alertResponse('connector.carModelHandler.createPlayer', data);
+				
+				// if returned player id is not valid ? 3/5/17 ME: in what condition this happens? i.e. this handles what situation?
+				if (data.player.id <= 0) {
+					switchManager.selectView('loginPanel');
+				} else {
+					afterLogin(data);
+				}
+			});
+		}
+	} 
+	
+	/**
+	 *	after login
+	 */
+	function afterLogin(data) {
+		alert("after login!");
 	}
 	
 	/**
@@ -184,6 +238,7 @@ define(['jquery', 'config'], function($, config) {
 	 * route: gate.gateHandler.queryEntry
 	 */
 	function testGateServer() {
+		/*
 		pomelo.init({
 				host: '192.168.239.140',
 				port: 3014,
@@ -193,16 +248,19 @@ define(['jquery', 'config'], function($, config) {
 					pomelo.disconnect();
 					
 					// alert the response from gateHandler
-					var alertMsg = 'gateHandler.queryEntry responds:\n';
-					for (var p in data) {
-						if (data.hasOwnProperty(p)) {
-							alertMsg += '\ndata.' + p + '=' + data[p];
-						}
-					}
-					alert(alertMsg);
+					alertResponse('gate.gateHandler.queryEntry', data);
 					
 				});
 			});
+		*/
+		var uid = '1';
+		queryEntry(uid, function(host, port) {
+			console.log('gate-server responds:\nhost=' + host + '\nport=' + port);
+			var msg = {};
+			var token = 'c8ab13f4bda17c7812ae1e47c2f69b63';
+			msg['token'] = token;
+			entry(host, port, token, function(){});
+		});
 	}
 	
 	/**
@@ -223,13 +281,15 @@ define(['jquery', 'config'], function($, config) {
 				pomelo.request('connector.entryHandler.entry', msg, function(data) {
 				
 					// alert the response from connector.entryHandler
-					var alertMsg = 'connector.entryHandler.entry responds:\n';
-					for (var p in data) {
-						if (data.hasOwnProperty(p)) {
-							alertMsg += '\ndata.' + p + '=' + data[p];
-						}
+					alertResponse('connector.entryHandler.entry', data);
+				
+					// switch view if data.player does not exist
+					var player = data.player;
+					if (!player || player.id <= 0) {
+						switchManager.selectView('carSelectPanel');
+					} else {
+						afterLogin(data);
 					}
-					alert(alertMsg);
 					
 				});
 			});
@@ -238,6 +298,36 @@ define(['jquery', 'config'], function($, config) {
 	return clientManager;
 	
 });
+
+/** 
+ * helper function - alert the responds data from specified server route
+ *
+ * @param		{String}		route 		Server route
+ * @param 	{Object} 		data 			Server response
+ *
+ */
+var alertResponse = function(route, data) {
+	var alertMsg = route + ' responds: {\n';
+
+	for (var p in data) {
+		if(data.hasOwnProperty(p)) {
+			
+			if (typeof data[p] == 'object') {
+				alertMsg += '    {\n';
+				for (var sp in data[p]) {
+					if (data[p].hasOwnProperty(sp)) {
+						alertMsg += '    ' + sp + ': ' + data[p][sp] + ',\n';
+					}
+				}
+				alertMsg += '}';
+			}	else {
+				alertMsg += '    ' + p + ': ' + data[p] + ',\n';
+			}
+		}
+	}
+	alertMsg += '}';
+	alert(alertMsg);
+}
 
 
 

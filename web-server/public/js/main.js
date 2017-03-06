@@ -9,6 +9,7 @@ requirejs.config({
 	paths: {
 		jquery: 'lib/libscripts/jquery-3.1.1.min',
 		config: 'config/config',
+		switchManager: 'ui/switchManager',
 		clientManager: 'ui/clientManager'
 	}
 });

@@ -1,15 +1,16 @@
 var express = require('express');
-var app = express.createServer();
+var app = express();
 var bcrypt = require('bcrypt');
 var Token = require('../shared/token');
 var secret = require('../shared/config/session').secret;
 var userDao = require('./lib/dao/userDao');
 var mysql = require('./lib/dao/mysql/mysql');
-var everyauth = require('./lib/oauth');
+//var everyauth = require('./lib/oauth');
 
 app.configure(function(){
   app.use(express.methodOverride());
-  app.use(express.bodyParser());
+  app.use(express.json());
+  app.use(express.urlencoded());
   app.use(app.router);
   app.set('view engine', 'jade');
   app.set('views', __dirname + '/public');
@@ -88,6 +89,8 @@ app.post('/login', function(req, res) {
 	var msg = req.body;
 	var username = msg.username;
 	var password = msg.password;
+	
+	// this should not happen if no man-in-the-middle-attack happens
 	if (!username || !password) {
 		res.send({code: 500});
 		return;
@@ -104,7 +107,10 @@ app.post('/login', function(req, res) {
 		//console.log('[DEBUG]login: Retrieved hash length = ', user.password.length);
 				
 		// generate hash with retrieved salt and origin pasword, then compare to hash on db
+		// KNOWN BUG (3/6/17): res.send cannot deliver to client in async bcrypt 
+		/*
 		bcrypt.hash(password, user.salt, function(err, hash) {
+			res.send({hash: hash});
 			if (err) {
 				console.log('[ERROR]bcrypt: restoring hash failed.');
 				res.send({code: 501});
@@ -117,11 +123,46 @@ app.post('/login', function(req, res) {
 			} else {
 				console.log(username + ' login!');
 				var token = Token.create(user.id, Date.now(), secret);
-				console.log('[DEBUG]login: generated token=', token);
+				//console.log('[DEBUG]login: generated token=', token);
 				res.send({code: 200, token: token, uid: user.id});
 			}
-		});
+		}); */
+		
+		var hash = bcrypt.hashSync(password, user.salt);
+		if (hash !== user.password) {
+			console.log('[ERROR]login: Wrong password!');
+			res.send({code: 501});
+		} else {
+			console.log(username + ' login!');
+			var token = Token.create(user.id, Date.now(), secret);
+			//console.log('[DEBUG]login: generated token=', token);
+			res.send({code: 200, token: token, uid: user.id});
+		}
 	});
+});
+
+// for test web-server responds to $.post
+app.post('/test', function(req, res) {
+	var str = 'req body is: {\n';
+	for (var p in req.body) {
+		if (req.body.hasOwnProperty(p)) {
+			if (typeof req.body[p] == 'object') {
+				str += '    {\n';
+				for (var sp in req.body[p]) {
+					if (req.body[p].hasOwnProperty(sp)) {
+						str += '    ' + sp + ': ' + req.body[p][sp] + ',\n';
+					}
+				}
+				str += '}';
+			} else {
+				str += '    ' + p + ': ' + req.body[p] + ',\n';
+			}
+		}
+	}
+	str += '}';
+	console.log(str);
+	
+	res.send({code: 200, token: Token.create('1', Date.now(), secret), uid: '1'});
 });
 
 // Init mysql
