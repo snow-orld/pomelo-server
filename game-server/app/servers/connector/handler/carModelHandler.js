@@ -94,10 +94,10 @@ var afterLogin = function(app, msg, session, user, player, next) {
 			session.set('playerId', player.id);
 			session.on('closed', onUserLeave);
 			session.pushAll(cb);
-		}/*,
+		},
 		function(cb) {
 			app.rpc.chat.chatRemote.add(session, user.id, player.name, channelUtil.getGlobalChannelName(), cb);
-		}*/
+		}
 	],
 	function(err) {
 		if (err) {
@@ -132,7 +132,7 @@ var onUserLeave = function(session, reason) {
 		if (!!err) {
 			logger.error('user leave error! %j', err);
 		}
-	});
+	});*/
 	rpc.chat.chatRemote.kick(session, session.uid, null);
-	*/
+	
 }

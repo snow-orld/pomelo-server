@@ -1,6 +1,6 @@
 var pomelo = require('pomelo');
 var sync = require('pomelo-sync-plugin');
-//var routeUtil = require('./app/util/routeUtil');
+var ChatService = require('./app/services/chatService');
 
 /**
  * Init app for client.
@@ -11,10 +11,6 @@ app.set('name', 'demo');
 // gloable configuration
 app.configure('production|development', function() {
 	app.loadConfig('mysql', app.getBase() + '/../shared/config/mysql.json');
-	
-	// route configures
-	//app.route('connector', routeUtil.connector);
-	
 });
 
 // configure connector server
@@ -46,8 +42,13 @@ app.configure('production|development', 'auth', function() {
 	app.set('session', require('../shared/config/session.json'));
 });
 
+// configure chat server
+app.configure('production|development', 'chat', function() {
+	app.set('chatService', new ChatService(app));
+});
+
 // configure database
-app.configure('production|development', 'auth|connector', function() {
+app.configure('production|development', 'auth|connector|area', function() {
 	var dbclient = require('./app/dao/mysql/mysql').init(app);
 	app.set('dbclient', dbclient);
 	app.use(sync, {sync: {path:__dirname + '/app/dao/mapping/', dbclient: dbclient}});

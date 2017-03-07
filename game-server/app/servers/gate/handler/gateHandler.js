@@ -15,9 +15,9 @@ var Handler = function(app) {
  * @param {Object} msg message from client
  * @param {Object} session 
  * @param {Function} next next step callback
- *
  */
 Handler.prototype.queryEntry = function(msg, session, next) {
+	console.log('[DEBUG]gateHandler.queryEntry: recieved msg is {uid: ' + msg.uid + '}');
 	var uid = msg.uid;
 	if (!uid) {
 		// code 500
@@ -32,6 +32,9 @@ Handler.prototype.queryEntry = function(msg, session, next) {
 	}
 	
 	var res = dispatcher.dispatch(uid, connectors);
+	
+	console.log('[DEGUB]gateHandler.queryEntry: res.host=' + res.host + ', res.port=' + res.clientPort);
+	
 	next(null, {code: Code.OK, host: res.host, port: res.clientPort});
 	
 	/*

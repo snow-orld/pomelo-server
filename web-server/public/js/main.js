@@ -10,11 +10,13 @@ requirejs.config({
 		jquery: 'lib/libscripts/jquery-3.1.1.min',
 		config: 'config/config',
 		switchManager: 'ui/switchManager',
-		clientManager: 'ui/clientManager'
+		messageHandler: 'handler/messageHandler',
+		clientManager: 'ui/clientManager',
 	}
 });
 
 requirejs(['clientManager'], function(clientManager) {
 	var clientManager = new clientManager();
 	clientManager.init();
+
 });

@@ -20,5 +20,9 @@ module.exports = {
 	
 	PLAYER: {
 		initAreaId: 1
+	},
+	
+	EVENT: {
+		CHAT: 'onMsg'
 	}
 }

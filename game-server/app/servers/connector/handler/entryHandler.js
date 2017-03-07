@@ -1,6 +1,6 @@
 var Code = require('../../../../../shared/code');	// 3/5/17: carModelHandler uses consts/consts for code. Unify the two!
 var userDao = require('../../../dao/userDao');	// used for get player info by uid
-//var channelUtil = require('../../../util/channelUtil');	// used for chat to get global channel name
+var channelUtil = require('../../../util/channelUtil');
 //var utils = require('../../../util/utils');	// used for player leaving area server
 var async = require('async');
 var logger = require('pomelo-logger').getLogger(__filename);
@@ -70,6 +70,7 @@ Handler.prototype.entry = function(msg, session, next) {
 		function(res, cb) {
 			// generate session and register chat status - till the end of async.waterfall
 			players = res;
+			
 			// DEBUG ~ begin
 			var debugStr = '[DEBUG]entry func @ connector.entryHandler: got players by uid. player is {'
 			for (var p in players[0]) {
@@ -78,6 +79,7 @@ Handler.prototype.entry = function(msg, session, next) {
 			debugStr += '}';
 			console.log(debugStr);
 			// DEBUG ~ end
+			
 			// close all sessions associated with uid
 			self.app.get('sessionService').kick(uid, cb);
 		}, 
@@ -97,11 +99,11 @@ Handler.prototype.entry = function(msg, session, next) {
 			session.set('playerId', player.id);
 			session.on('closed', onUserLeave.bind(null, self.app));
 			session.pushAll(cb);
-		}/*,
+		},
 		function(cb) {
 			self.app.rpc.chat.chatRemote.add(session, player.userId, player.name,
 				channelUtil.getGlobalChannelName(), cb);
-		}*/
+		}
 	], function(err) {
 		if (err) {
 			next(err, {code: Code.FAIL});
@@ -126,8 +128,8 @@ var onUserLeave = function(app, session, reason) {
 			logger.error('user leave error! %j', err);
 		}
 	});
-	app.rpc.chat.chatRemote.kick(session, session.uid, null);
 	*/
+	app.rpc.chat.chatRemote.kick(session, session.uid, null);
 }
 
 /**

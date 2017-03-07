@@ -27,6 +27,10 @@ var Player = function(opts) {
 	//this.type = EntityType.PLAYER;		// not used for now
 	this.userId = opts.userId;
 	this.name = opts.name;
+	
+	// 7 attributes including pos, rotation, scale, etc.
+	// not associated with session. like bag, it is stored in db in a separate table. But unlik bag, lik pos, it changes frequently
+	this.status = opts.status;	
 };
 
 util.inherits(Player, Character);
@@ -38,7 +42,8 @@ module.exports = Player;
 
 
 /**
- * Conver player's state to json and return
+ * Conver player's BASIC info to json and return
+ * used in connector.entryHandler and connector.carModelHandler for dealing with session bind
  * 
  * 3/6/17 ME: stip() not returning player.userId. 
  * strip() is called in connector.carModelHandler.createPlayer afterLogin, 
@@ -57,3 +62,28 @@ Player.prototype.strip = function() {
 		kindName: this.kindName
 	}
 }
+
+/**
+ * Set player's status (position, rotation, scale, velocity, etc.)
+ * Used in userDao.getPlayerAllInfo, set status of player to reply to playerHandler.enterScene
+ */
+Player.prototype.setStaus = function(status) {
+	for (var p in status) {
+		this.status[p] = status[p];
+	}
+}
+
+/**
+ * Get the overall information of player, including its status
+ *
+ * @return 	{Object}
+ * @api public
+ */
+Player.prototype.getInfo = function() {
+	var playerData = this.strip();
+	playerData.status = this.status;
+	
+	return playerData;
+}
+
+

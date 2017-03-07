@@ -1,7 +1,7 @@
 var pomelo = require('pomelo');
 var bcrypt = require('bcrypt');
 var utils = require('../util/utils');
-var User = require('../domain/user');
+var User = require('../domain/account/user');
 var Player = require('../domain/entity/player');
 var consts = require('../consts/consts');
 
@@ -245,4 +245,70 @@ userDao.createPlayer = function(uid, name, cb) {
 			utils.invokeCallback(cb, null, player);
 		}
 	});
+};
+
+/** 
+ * Get from Player table by playerId
+ *
+ * @param		{Number} 		playerId
+ * @param		{function}	cb				callbackfunction.
+ *
+ */
+userDao.getPlayer = function(playerId, cb) {
+	var sql = 'select * from Player where id = ?';
+	var args = [playerId];
+	
+	pomelo.app.get('dbclient').query(sql, args, function(err, res) {
+		if (err !== null) {
+			utils.invokeCallback(cb, err.message, null);
+		} else if (!res || res.length <= 0) {
+			utils.invokeCallback(cb, null, []);
+		} else {
+			utils.invokeCallback(cb, null, new Player(res[0]));
+		}
+	});
+}
+
+/**
+ * Get player's all information, including the 7 attributes of its sate (position, rotation, scale, etc.
+ * used in area.playerHandler.enterScene
+ *
+ * 3/7/17 Check with Player's definition
+ *
+ * @param		{String}		playerId
+ * @param 	{function}	cb
+ *
+ */
+userDao.getPlayerAllInfo = function(playerId, cb) {
+	async.parallel([
+		// read from Player table
+		function(callback) {
+			userDao.getPlayer(playerId, function(err, res) {
+				if (!!err || !player) {
+					logger.error('Get player for userDao failed! ' + err.stack);
+				}
+				callback(err, player);
+			});
+		},
+		// read from status table to get player's position, rotation, scale, velocity, etc.
+		// for now it is not stored in database, just initializing randomly or by default
+		function(callback) {
+			var status = {};
+			status['scale'] = [1, 1, 1];
+			status['rotation'] = [0, 0, 0];
+			callback(null, status);
+		}
+	],
+	function(err, results) {
+		var player = results[0];
+		var status = results[1];
+		player.setStatus(status);
+		
+		if (!!err) {
+			utils.invokeCallback(cb, err);
+		} else {
+			utils.invokeCallback(cb, null, player);
+		}
+	});
+
 };

@@ -1,4 +1,4 @@
-define(['jquery', 'config', 'switchManager'], function($, config, switchManager) {
+define(['jquery', 'config', 'switchManager', 'messageHandler'], function($, config, switchManager, messageHandler) {
 
 	var clientManager = function() {
 		this.pomelo = window.pomelo;
@@ -8,6 +8,7 @@ define(['jquery', 'config', 'switchManager'], function($, config, switchManager)
 	
 	pomelo.on('websocket-error', function() {
 		alert(httpHost + ': Websocket error!');
+		clientManager.loading = false;
 	});
 	
 	/**
@@ -83,6 +84,8 @@ define(['jquery', 'config', 'switchManager'], function($, config, switchManager)
 		
 		$.post(httpHost + 'login', {username: username, password: password}, function(data) {
 		
+			alertResponse('httpHost/login', data);
+		
 			if (data.code === 501) {
 				alert('Username or password is invalid!');
 				return;
@@ -92,30 +95,31 @@ define(['jquery', 'config', 'switchManager'], function($, config, switchManager)
 				return;
 			}
 			
+			/*
 			authEntry(data.uid, data.token, function() {
-				console.log('user authentication succeeded.');
+				console.log("user login succeede.");
 				alert(username + ' logged in!');
 			});
+			*/
 			
+			testGateServer();
 			// set username in localStorage
 			localStorage.setItem('username', username);
 		});
-	}
-	
-	function ajaxError(jqXHR, textStatus, errorThrown) {
-		alert('$.post ' + textStatus + ' : ' + errorThrown);
+		
 	}
 	
 	/**
 	 * authEntry
 	 */
 	function authEntry(uid, token, callback) {
+		alert('authEntry running\nuid='+uid+', token='+token);
 		queryEntry(uid, function(host, port) {
 			entry(host, port, token, callback);
 		});
 	}
-	
 	pomelo.authEntry = authEntry;
+	
 	/**
 	 * queryEntry
 	 * first connect to gate server to get authenticated with a token
@@ -126,19 +130,22 @@ define(['jquery', 'config', 'switchManager'], function($, config, switchManager)
 	 *	}
 	 */
 	function queryEntry(uid, callback) {
+		alert('queryEntry running\n\ngate_host: '+config.GATE_HOST+'\ngate_port: '+config.GATE_PORT);
+
 		pomelo.init({host: config.GATE_HOST, port: config.GATE_PORT, log: true}, function() {
 			pomelo.request('gate.gateHandler.queryEntry', {uid: uid}, function(data) {
-				alertResponse('gate.geteHandler.queryEntry', data);
 				pomelo.disconnect();
 				
 				if (data.code === 2001) {
 					alert('Server error!');
 					return;
 				}
-				alert(callback)
+				
 				callback(data.host, data.port);
 			});
 		});
+		
+		//callback('192.168.239.140', '3011');
 	}
 	
 	/**
@@ -151,12 +158,13 @@ define(['jquery', 'config', 'switchManager'], function($, config, switchManager)
 	 * 	}
 	 */
 	function entry(host, port, token, callback) {
+		alert('entry() running');
 		
 		// init socketClient
 		// TODO for development - 2/27/17 me: WHAT for development? host?
 		
 		if (host === '127.0.0.1') {
-			host = config.GATE_HOST;	//? go back to gate server?
+			host = config.GATE_HOST;	// set the host of connector server accessible from outside client
 		}
 		
 		pomelo.init({host: host, port: port, log: true}, function() {
@@ -183,6 +191,7 @@ define(['jquery', 'config', 'switchManager'], function($, config, switchManager)
 				// init handler
 				//loginMsgHandler.init();
 				//gameMsgHandler.init();
+				messageHandler.init();
 				
 				if (!player || player.id <= 0) {
 					// switch view to create new player
@@ -231,6 +240,49 @@ define(['jquery', 'config', 'switchManager'], function($, config, switchManager)
 	 */
 	function afterLogin(data) {
 		alert("after login!");
+		// enter scene !
+		var userData = data.user;	// 3/7/17: entryHandler.entry only responds {code, player}, no user
+		var playerData = data.player;
+		
+		var areaId = playerData.areaId;
+		
+		if (!!userData) {
+			pomelo.uid = userData.id;
+		}
+		pomelo.playerId = playerData.id;
+		pomelo.areaId = areaId;
+		pomelo.player = playerData;
+		
+		// for now skip the load process, directly enterscene
+		loadResource({jsonLoad: true}, function() {
+			enterScene();
+		});
+	}
+	
+	/**
+	 * load resource
+	 */
+	function loadResource(opt, callback) {
+		//switchManager.selectView('loadingPanel');
+		
+		// loading page event code not copied
+		if (callback) {
+			setTimeout(function() {
+				callback();
+			}, 500);
+		}
+	}
+	
+	/**
+	 * enter scene
+	 */
+	function enterScene() {
+		// 3/7/17: game-server does not run area Management for now, do it locally
+		//pomelo.request('area.playerHandler.enterScene', null, function(data) {// initiate the scene });
+		pomelo.request('chat.chatHandler.send', {content: 'Hello!'}, function(data) {
+			alertResponse('chat.chatHandler.send', data);
+		});
+
 	}
 	
 	/**
@@ -254,14 +306,9 @@ define(['jquery', 'config', 'switchManager'], function($, config, switchManager)
 			});
 		*/
 		var uid = '1';
-		queryEntry(uid, function(host, port) {
-			console.log('gate-server responds:\nhost=' + host + '\nport=' + port);
-			var msg = {};
-			var token = 'c8ab13f4bda17c7812ae1e47c2f69b63';
-			msg['token'] = token;
-			entry(host, port, token, function(){});
-		});
-	}
+		var token = 'c8ab13f4bda17c7812ae1e47c2f69b63';
+		authEntry(uid, token, function(){ alert('authENtry done!'); });
+	};
 	
 	/**
 	 * test connector server with auth server validating token

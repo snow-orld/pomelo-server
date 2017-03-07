@@ -12,6 +12,10 @@ app.configure(function(){
   app.use(express.json());
   app.use(express.urlencoded());
   app.use(app.router);
+  
+  app.use(express.cookieParser());
+  app.use(express.session({ secret: "keyboard cat" }));
+  
   app.set('view engine', 'jade');
   app.set('views', __dirname + '/public');
   app.set('view options', {layout: false});
@@ -44,6 +48,10 @@ app.post('/register', function(req, res) {
 	
 	// generate salt
 	var saltRounds = 10;
+	
+	// KNOWN BUG (3/6/17): res.send cannot deliver to client in async bcrypt
+	// 3/6/17: HOWEVER after changing to the sync bcrypt, still no register response on client side
+	/*
 	bcrypt.genSalt(saltRounds, function(err, salt) {
 		if (err) {
 			console.log('[ERROR]bcrypt: generating salt failed.');
@@ -52,7 +60,7 @@ app.post('/register', function(req, res) {
 		
 		//console.log('[DEBUG]bcrypt: generated salt length = ', salt.length);
 		
-		// create hash with salt
+		// create hash with salt	
 		bcrypt.hash(password, salt, function(err, hash) {
 			if (err) {
 				console.log('[ERROR]bcrypt: create hash failed.');
@@ -81,6 +89,30 @@ app.post('/register', function(req, res) {
 			});
 		});
 	});
+	*/
+	
+	var salt = bcrypt.genSaltSync(saltRounds);
+	var hash = bcrypt.hashSync(password, salt);
+	
+	// create new user
+	userDao.createUser(username, hash, salt, '', function(err, user) {
+		if (err || !user) {
+			if (err && err.code === 'ER_DUP_ENTRY') {
+				// mysql insert error - duplicate entry
+				console.log('[ERROR]register: Username already exists!');
+				res.send({code: 501});
+				return;
+			} else {
+				console.log('[ERROR]register: Create user error');
+				res.send({code: 500});
+				return;
+			}
+		} else {
+			console.log('A new user was created! --' + username);
+			res.send({code: 200, token: Token.create(user.id, Date.now(), secret), uid: user.id});
+		}
+	});
+	
 });
 
 app.post('/login', function(req, res) {
@@ -143,6 +175,8 @@ app.post('/login', function(req, res) {
 
 // for test web-server responds to $.post
 app.post('/test', function(req, res) {
+	console.log('[DEBUG]routing at /test');
+	
 	var str = 'req body is: {\n';
 	for (var p in req.body) {
 		if (req.body.hasOwnProperty(p)) {
@@ -162,7 +196,7 @@ app.post('/test', function(req, res) {
 	str += '}';
 	console.log(str);
 	
-	res.send({code: 200, token: Token.create('1', Date.now(), secret), uid: '1'});
+	res.json({code: 200, token: Token.create('1', Date.now(), secret), uid: '1'});
 });
 
 // Init mysql

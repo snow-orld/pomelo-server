@@ -13,3 +13,14 @@ exp.connector = function(session, msg, app, cb) {
 	
 	cb(null, session.frontendId);
 };
+
+exp.area = function(session, msg, app, cb) {
+	var serverId = session.get('serverId');
+	
+	if (!serverId) {
+		cb(new Error('can not find server info for type: ' + msg.serverType));
+		return;
+	}
+	
+	cb(null, serverId);
+};
