@@ -1,8 +1,8 @@
 var utils = module.exports;
 
 // control variable of func "myPrint"
-var isPrintFlag = false;
-// var isPrintFlag = true;
+//var isPrintFlag = false;
+var isPrintFlag = true;
 
 /**
  * Check and invoke callback function
@@ -53,7 +53,7 @@ utils.size = function(obj) {
 function getStack() {
 	var orig = Error.prepareStackTrace;
 	Error.prepareStackTrace = function(_, stack) {
-		return statck;
+		return stack;
 	};
 	
 	var err = new Error();

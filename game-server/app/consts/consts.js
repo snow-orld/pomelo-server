@@ -12,10 +12,12 @@ module.exports = {
 	// 3/5/17 ME: not sure how BornPlace.width/height relates to client view 
 	// 3/5/17 A: widht and height is the random number range added to x, y
 	BornPlace: {
-		x: 0,
+		x: 50,
 		y: 0,
-		width: 126,
-		height: 129
+		z: -50,
+		width: 100,
+		height: 0,
+		length: 100
 	},
 	
 	PLAYER: {
@@ -23,6 +25,9 @@ module.exports = {
 	},
 	
 	EVENT: {
-		CHAT: 'onMsg'
+		CHAT: 'onMsg',
+		UPDATE: 'update',
+		USERENTERSCENE: 'userEnter',
+		USERLEAVESCENE: 'userLeave'
 	}
 }

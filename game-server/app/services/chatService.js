@@ -2,6 +2,7 @@ var Code = require('../../../shared/code');
 var uitls = require('../util/utils');
 var dispatcher = require('../util/dispatcher');
 var Event = require('../consts/consts').EVENT;
+var logger = require('pomelo-logger').getLogger(__filename);
 
 var ChatService = function(app) {
 	this.app = app;
@@ -125,15 +126,34 @@ var clearRecords = function(service, uid) {
  *
  * @param  {String}   channelName channel name
  * @param  {Object}   msg         message json object
+ * @param	 {Object}		ignoreList	igList[userId] == true, Msg will not be pushed to userId
  * @param  {Function} cb          callback function
  *
  */
-ChatService.prototype.pushByChannel = function(channelName, msg, cb) {
-	var channel = this.app.get('channelService').getChannel(channelName);
-	if (!channel) {
-		cb(new Error('channel ' + channelName + ' does not exist'));
-		return;
+ChatService.prototype.pushByChannel = function(channelName, msg, ignoreList, cb) {
+	if (!!ignoreList) {
+		// pushMessageByUids
+		var uids = [];
+		for (var uid in this.uidMap) {
+			var record = this.uidMap[uid];
+			if (!ignoreList[uid]) {
+				console.log('[DEBUG]pushByChannel@chatService: dealing with ignorelist. pushMsg target uids add {uid:'
+						+ record.uid + ',sid:' + record.sid + '}');
+				uids.push({uid: record.uid, sid: record.sid});
+			}
+		}
+		
+		if (uids.length > 0) {
+			this.app.get('channelService').pushMessageByUids(Event.CHAT, msg, uids, cb);
+		}
+	} else {
+		// Push message to all the members in the channel
+		var channel = this.app.get('channelService').getChannel(channelName);
+		if (!channel) {
+			cb(new Error('channel ' + channelName + ' does not exist'));
+			return;
+		}
+		
+		channel.pushMessage(Event.CHAT, msg, cb);
 	}
-	
-	channel.pushMessage(Event.CHAT, msg, cb);
 };

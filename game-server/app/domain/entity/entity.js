@@ -25,10 +25,12 @@ var Entity = function(opts) {
 	this.kindName = opts.kindName;
 	this.x = opts.x;
 	this.y = opts.y;
+	this.z = opts.z;
+	this.type = opts.type;
 	
 	// addEntity called when area server gets initiated
 	this.areaId = Number(opts.areaId || 1);
-	this.area = opts.area;
+	this.area = opts.area;	// 3/9/17 ME: why entity has to store the area. this is a sucpectalbe cause for responding getPlayerAllInfo. already delete player['area'] before userDao.getPlayerAllInfo returns player
 }
 
 util.inherits(Entity, EventEmitter);

@@ -29,8 +29,11 @@ ChannelHandler.prototype.send = function(msg, session, next) {
 	var playerId = session.get('playerId');
 	var uid = session.uid;
 	channelName = getChannelName();
+	
+	var ignoreList = {};
+	ignoreList[uid] = true;
 
-	this.chatService.pushByChannel(channelName, msg, function(err, res) {
+	this.chatService.pushByChannel(channelName, msg, ignoreList, function(err, res) {
 		if (err) {
 			logger.error(err.stack);
 			code = Code.FAIL;
@@ -40,6 +43,8 @@ ChannelHandler.prototype.send = function(msg, session, next) {
 			code = Code.OK;
 		}
 		
-		next(null, {code: code});
+		console.log('[DEBUG]send @ chatHandler: send result code is ' + code);
+		//next(null, {code: code});
+		next(null, null);
 	});
 }

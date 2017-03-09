@@ -1,7 +1,7 @@
 var Code = require('../../../../../shared/code');	// 3/5/17: carModelHandler uses consts/consts for code. Unify the two!
 var userDao = require('../../../dao/userDao');	// used for get player info by uid
 var channelUtil = require('../../../util/channelUtil');
-//var utils = require('../../../util/utils');	// used for player leaving area server
+var utils = require('../../../util/utils');	// used for player leaving area server
 var async = require('async');
 var logger = require('pomelo-logger').getLogger(__filename);
 
@@ -121,14 +121,12 @@ var onUserLeave = function(app, session, reason) {
 		return;
 	}
 	
-	/*
 	utils.myPrint('1 ~ connector.entryHandler.onUserLeaving is running ...');
-	app.rpc.area.playerRemote.playerLeave(session, {playerId: session.get('palyerId'), instanceId: session.get('instanceId')}, function(err) {
+	app.rpc.area.playerRemote.playerLeave(session, {playerId: session.get('playerId'), instanceId: session.get('instanceId')}, function(err) {
 		if (!!err) {
 			logger.error('user leave error! %j', err);
 		}
 	});
-	*/
 	app.rpc.chat.chatRemote.kick(session, session.uid, null);
 }
 

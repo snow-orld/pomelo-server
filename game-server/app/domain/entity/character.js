@@ -14,6 +14,8 @@ var logger = require('pomelo-logger').getLogger(__filename);
  * Initialize a new 'Character' with give opts.
  * Character inherits Entity
  *
+ * 3/8/17 ME: for syncing Cars, character is Car
+ *
  * @param		{Object}		opts
  * @api 		public
  *

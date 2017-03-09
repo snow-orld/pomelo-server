@@ -20,8 +20,11 @@ define(['jquery', 'config', 'switchManager', 'messageHandler'], function($, conf
 		$('#loginBtn').on('click', login.bind(this));
 		$('#newPlayerBtn').on('click', createPlayer);
 		// test server buttons
-		$('#testGate').on('click', testGateServer.bind(this));
-		$('#testConnector').on('click', testConnectorServer.bind(this));
+		$('#testGate').on('click', testGateServer);
+		$('#testConnector').on('click', testConnectorServer);
+		// auto login for p1, p2
+		$('#p1').on('click', autoLogin);
+		$('#p2').on('click', autoLogin);
 	};
 	
 	/**
@@ -95,14 +98,11 @@ define(['jquery', 'config', 'switchManager', 'messageHandler'], function($, conf
 				return;
 			}
 			
-			/*
 			authEntry(data.uid, data.token, function() {
 				console.log("user login succeede.");
 				alert(username + ' logged in!');
 			});
-			*/
-			
-			testGateServer();
+		
 			// set username in localStorage
 			localStorage.setItem('username', username);
 		});
@@ -236,10 +236,12 @@ define(['jquery', 'config', 'switchManager', 'messageHandler'], function($, conf
 	} 
 	
 	/**
-	 *	after login
+	 * after login
+	 *
+	 * @param		{Object}	data	Player data
 	 */
 	function afterLogin(data) {
-		alert("after login!");
+		//alert("afterLogin running");
 		// enter scene !
 		var userData = data.user;	// 3/7/17: entryHandler.entry only responds {code, player}, no user
 		var playerData = data.player;
@@ -279,8 +281,20 @@ define(['jquery', 'config', 'switchManager', 'messageHandler'], function($, conf
 	function enterScene() {
 		// 3/7/17: game-server does not run area Management for now, do it locally
 		//pomelo.request('area.playerHandler.enterScene', null, function(data) {// initiate the scene });
-		pomelo.request('chat.chatHandler.send', {content: 'Hello!'}, function(data) {
-			alertResponse('chat.chatHandler.send', data);
+		pomelo.request('area.playerHandler.enterScene', {content: 'Hello!'}, function(data) {
+			alertResponse('area.playerHandler.enterScene', data);
+			
+			var msg = {
+				content: 'sync',
+				uuid : '1',
+				position: [100,0,100],
+				quaternion: [1,1,1,1],
+				velocity: [2,2,2],
+				steering: [3,3,3,3]
+			};
+			pomelo.request('area.playerHandler.update', msg, function(data) {
+				alertResponse('area.playerHandler.update', data);
+			});
 		});
 
 	}
@@ -340,6 +354,29 @@ define(['jquery', 'config', 'switchManager', 'messageHandler'], function($, conf
 					
 				});
 			});
+	}
+	
+	/**
+	 * auto login for user, to avoid clientManger failing to run through queryEntry problem
+	 *
+	 * 3/8/17: this in the function points to the whole html element clicked
+	 *
+	 */
+	function autoLogin() {
+		console.log('autoLogin by ' + this.id + '');
+		
+		var uid = '';
+		if (this.id == 'p1') uid = '1';
+		else if (this.id == 'p2') uid = '2';
+		
+		var tokens = ['c8ab13f4bda17c7812ae1e47c2f69b63', 'c04b7d0de90ff8d8b65f3d281af8b3c8'];
+		
+		if(!uid || !tokens[uid - 1]) {
+			alert('wrong uid! uid = ' + uid);
+			return;
+		}
+		
+		authEntry(uid, tokens[uid - 1]);
 	}
 	
 	return clientManager;

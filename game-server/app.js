@@ -1,6 +1,8 @@
 var pomelo = require('pomelo');
 var sync = require('pomelo-sync-plugin');
 var ChatService = require('./app/services/chatService');
+var playerFilter = require('./app/servers/area/filter/playerFilter');
+var scene = require('./app/domain/area/scene');
 
 /**
  * Init app for client.
@@ -11,6 +13,23 @@ app.set('name', 'demo');
 // gloable configuration
 app.configure('production|development', function() {
 	app.loadConfig('mysql', app.getBase() + '/../shared/config/mysql.json');
+/*	
+	// proxy configures
+	app.set('proxyConfig', {
+		cacheMsg: true,
+		interval: 30,
+		lazyConnection: true		// 3/8/17 ME: does this have anything to do with the chat handler rpc timeout error? - NO
+	});
+	
+	// enable rpc logs
+	app.rpcFilter(pomelo.rpcFilters.rpcLog());	// 3/8/17 ME: try to log error when chat handler cannot return res - NO
+	
+	// remote configures
+	app.set('remoteConfig', {
+		cacheMsg: true,
+		interval: 30
+	});
+*/
 });
 
 // configure connector server
@@ -45,6 +64,17 @@ app.configure('production|development', 'auth', function() {
 // configure chat server
 app.configure('production|development', 'chat', function() {
 	app.set('chatService', new ChatService(app));
+});
+
+// configure area server
+app.configure('production|development', 'area', function() {
+	app.filter(pomelo.filters.serial());
+	app.before(playerFilter());
+	
+	// Load scene server - for now, server does not need to run a map 
+	//var server = app.curServer;
+	scene.init({id: '1', type: 'none'});
+	app.areaManager = scene;
 });
 
 // configure database

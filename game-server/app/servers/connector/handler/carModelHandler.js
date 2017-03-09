@@ -1,9 +1,10 @@
 var pomelo = require('pomelo');
 var logger = require('pomelo-logger').getLogger(__filename);
 var userDao = require('../../../dao/userDao');
+var carDao = require('../../../dao/carDao');
 var consts = require('../../../consts/consts');	// 3/5/17 ME: entryHandler uses shared/config/data/code.js for messagecode. unify the two!
 var channelUtil = require('../../../util/channelUtil');
-//var utils = require('../../../util/utils');		// only used for print onUserLeave, i.e. session closed handler
+var utils = require('../../../util/utils');		// only used for print onUserLeave, i.e. session closed handler
 var async = require('async');
 
 module.exports = function(app) {
@@ -52,11 +53,14 @@ Handler.prototype.createPlayer = function(msg, session, next) {
 				next(null, {code: consts.MESSAGE.ERR, error: err});
 				return;
 			} else {
-				/*
+			
 				async.parallel([
 					// create player related info such as bag, equip, and learn skill, etc.
-					// do nothing for now. if do nothing, the final callback won't run,
+					// create Car for player for now. if do nothing, the final callback won't run,
 					// meaning nothing from server will return to client.
+					function(callback) {
+						carDao.createCar(player.id, callback);	// 3/8/17 ME: NOT test now, car is manully inserted
+					}
 				],
 				function(err, results) {
 					if (err) {
@@ -66,10 +70,7 @@ Handler.prototype.createPlayer = function(msg, session, next) {
 					}
 					afterLogin(self.app, msg, session, {id: uid}, player.strip(), next);
 				});
-				*/
-				
-				// for now
-				afterLogin(self.app, msg, session, {id: uid}, player.strip(), next);
+	
 			}
 		});
 	});
@@ -123,16 +124,14 @@ var onUserLeave = function(session, reason) {
 	if (!session || !session.uid) {
 		return;
 	}
-	
-	/*
+
 	utils.myPrint('2 ~ connector.carModelHandler.OnUserLeave is running ...');
 	var rpc = pomelo.app.rpc;
-	rpc not implemented yet
 	rpc.area.playerRemote.playerLeave(session, {playerId: session.get('playerId'), areaId: session.get('areaId')}, function(err) {
 		if (!!err) {
 			logger.error('user leave error! %j', err);
 		}
-	});*/
+	});
 	rpc.chat.chatRemote.kick(session, session.uid, null);
 	
 }
