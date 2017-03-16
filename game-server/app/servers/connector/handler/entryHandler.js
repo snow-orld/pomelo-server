@@ -58,12 +58,7 @@ Handler.prototype.entry = function(msg, session, next) {
 			userDao.getPlayersByUid(user.id, cb);
 			
 			// DEBUG ~ begin
-			var debugStr = '[DEBUG]entry func @ connector.entryHandler: token validated. user is {'
-			for (var p in user) {
-				debugStr += p + ':' + user[p] + ',';
-			}
-			debugStr += '}';
-			console.log(debugStr);
+			console.log('[DEBUG]entry func @ connector.entryHandler: token validated. user is %j', user);
 			// DEBUG ~ end
 			
 		}, 
@@ -72,12 +67,7 @@ Handler.prototype.entry = function(msg, session, next) {
 			players = res;
 			
 			// DEBUG ~ begin
-			var debugStr = '[DEBUG]entry func @ connector.entryHandler: got players by uid. player is {'
-			for (var p in players[0]) {
-				debugStr += p + ':' + players[0][p] + ',';
-			}
-			debugStr += '}';
-			console.log(debugStr);
+			console.log('[DEBUG]entry func @ connector.entryHandler: got players by uid. player is %j', players[0]);
 			// DEBUG ~ end
 			
 			// close all sessions associated with uid
@@ -99,11 +89,11 @@ Handler.prototype.entry = function(msg, session, next) {
 			session.set('playerId', player.id);
 			session.on('closed', onUserLeave.bind(null, self.app));
 			session.pushAll(cb);
-		},
+		}/*,
 		function(cb) {
 			self.app.rpc.chat.chatRemote.add(session, player.userId, player.name,
 				channelUtil.getGlobalChannelName(), cb);
-		}
+		}*/
 	], function(err) {
 		if (err) {
 			next(err, {code: Code.FAIL});
@@ -127,7 +117,7 @@ var onUserLeave = function(app, session, reason) {
 			logger.error('user leave error! %j', err);
 		}
 	});
-	app.rpc.chat.chatRemote.kick(session, session.uid, null);
+	//app.rpc.chat.chatRemote.kick(session, session.uid, null);
 }
 
 /**

@@ -29,17 +29,6 @@ Handler.prototype.createPlayer = function(msg, session, next) {
 	var self = this;
 	
 	userDao.getPlayerByName(name, function(err, player) {
-
-		// DEBUG ~ begin - console.log returned Player
-		var debugStr = '[DEBUG]createPlayer func @ connector.carModelHandler: got player by name. player is {';
-		for (var p in player) {
-			debugStr += p + ':' + player[p] + ',';
-		}
-		debugStr += '}';
-		console.log(debugStr);
-		// DEBUG ~ end
-		
-		console.log(player)
 		if (player) {
 			// player name duplicates
 			next(null, {code: consts.MESSAGE.ERR});
@@ -54,6 +43,7 @@ Handler.prototype.createPlayer = function(msg, session, next) {
 				return;
 			} else {
 			
+			/*
 				async.parallel([
 					// create player related info such as bag, equip, and learn skill, etc.
 					// create Car for player for now. if do nothing, the final callback won't run,
@@ -70,7 +60,17 @@ Handler.prototype.createPlayer = function(msg, session, next) {
 					}
 					afterLogin(self.app, msg, session, {id: uid}, player.strip(), next);
 				});
-	
+			*/
+			
+				carDao.createCar(player.id, function(err, car) {
+					if (err) {
+						logger.err(err.message);
+						next(null, {code: consts.MESSAGE.ERR, error: err});
+						return;
+					}
+					logger.warn('creating Player: player.strip() is %j', player.strip());
+					afterLogin(self.app, msg, session, {id: uid}, player.strip(), next);
+				});
 			}
 		});
 	});
@@ -82,9 +82,11 @@ Handler.prototype.createPlayer = function(msg, session, next) {
  *
  */
 var afterLogin = function(app, msg, session, user, player, next) {
+	logger.warn('afterLogin in carModelHandler');
 	async.waterfall([
 		// 3/5/17 ME: here it skips the get('sessionService').kick(uid, cb) compared to entryHandler. OK?
 		function(cb) {
+			logger.warn('afterLogin binding session %j', session)
 			session.bind(user.id, cb);
 		},
 		function(cb) {
@@ -95,10 +97,11 @@ var afterLogin = function(app, msg, session, user, player, next) {
 			session.set('playerId', player.id);
 			session.on('closed', onUserLeave);
 			session.pushAll(cb);
-		},
+			logger.warn('binded session in carModelHandler')
+		}/*,
 		function(cb) {
 			app.rpc.chat.chatRemote.add(session, user.id, player.name, channelUtil.getGlobalChannelName(), cb);
-		}
+		}*/
 	],
 	function(err) {
 		if (err) {
@@ -132,6 +135,6 @@ var onUserLeave = function(session, reason) {
 			logger.error('user leave error! %j', err);
 		}
 	});
-	rpc.chat.chatRemote.kick(session, session.uid, null);
+	//rpc.chat.chatRemote.kick(session, session.uid, null);
 	
 }

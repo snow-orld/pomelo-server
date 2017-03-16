@@ -40,7 +40,10 @@ function errHandler(err, fails) {
  */
 exp.pushMessageToArea = function(area, route, msg, ignoreList) {
 	var uids = area.getAllPlayerUids(ignoreList);		// type is Array[{uid, sid}], sid is the connector.id
-	var entities = area.entities;
+	
+	// userLeave message sent out when session closed groups contain too many replicated uids, 
+	// only posible cause is the uids passed in here
+	console.log('[DEBUG]pushMessageToArea @ messageService: uids got from area.getAllPlayerUids with ignoreList = %j', uids);
 	
 	if (uids.length > 0) {
 		pomelo.app.get('channelService').pushMessageByUids(route, msg, uids);

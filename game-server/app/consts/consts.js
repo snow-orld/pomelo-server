@@ -29,5 +29,9 @@ module.exports = {
 		UPDATE: 'update',
 		USERENTERSCENE: 'userEnter',
 		USERLEAVESCENE: 'userLeave'
+	},
+	
+	BROADCAST: {
+		INTERVAL: 200
 	}
 }

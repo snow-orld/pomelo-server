@@ -32,31 +32,34 @@
       
       <!--@login/register -->
       <div id="loginPanel">
-		    <div class="g-form" id="userRegFrame">
-			  	Register:
+		    <div class="g-form g-hide" id="userRegFrame">
+			  	<h3>Register</h3>
 			  	<form>
 						<p>Username:<input id="regName" type="text"/>
 						<p>Password:<input id="regPwd" type="password" />
 						<p>Confirm Password:<input id="regCpwd" type="password" />
-						<p><button id="regBtn">Register</button>					
+						<p><input id="regBtn" type="button" value="Register" />					
 					</form>
+					<p><a href="#">Click here to go back to login.</a>
 		  	</div>
 			  <div class="g-form" id="userLoginFrame">
-			  	Login:
+			  	<h3>Login</h3>
 			  	<form>
 						<p>Username:<input id="loginName" type="text"/>
 						<p>Password:<input id="loginPwd" type="password" />
-						<p><button id="loginBtn">Login</button>
+						<p><input id="loginBtn" type="button" value="Login" />
 					</form>
+					<p><a href="#">Click here to create a new account.</a>
 			  </div>
       </div>
       
  			<!-- @Pannel for creating new player: give it a new name; may select between car models potentially -->
  			<div class="g-hide" id="carSelectPanel">
  				<div class="g-form">
+	 				<h3>Choose a new name</h3>
  					<form>
  						<p>Player Name: <input id="playerName" type="text" />
- 						<p><button id="newPlayerBtn">Create Player</button>
+ 						<p><input id="newPlayerBtn" type="button" value="Create Player" />
  					<form>
  				</div>
  			</div>
@@ -77,7 +80,10 @@
       	<input id="p1" type="button" value="p1 login" />
       	<input id="p2" type="button" value="p2 login" />
       </div>
-    
+      <div class="g-button">
+      	<input id="logout" type="button" value="logout" />
+      </div>
+    	
     </div>
   </body>
 </html>

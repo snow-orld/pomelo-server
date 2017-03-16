@@ -3,12 +3,12 @@ define(['jquery', 'config', 'switchManager', 'messageHandler'], function($, conf
 	var clientManager = function() {
 		this.pomelo = window.pomelo;
 		
-		this.httpHost = location.href.replace(location.hash, '').replace('?', '');
+		this.httpHost = location.href.replace(location.hash, '').replace('#', '');
 	}
 	
 	pomelo.on('websocket-error', function() {
 		alert(httpHost + ': Websocket error!');
-		clientManager.loading = false;
+		//clientManager.loading = false;
 	});
 	
 	/**
@@ -16,9 +16,12 @@ define(['jquery', 'config', 'switchManager', 'messageHandler'], function($, conf
 	 */
 	clientManager.prototype.init = function() {
 		// bind events
+		$('#userLoginFrame a').on('click', gotoRegister);
+		$('#userRegFrame a').on('click', gotoLogin);
 		$('#regBtn').on('click', register.bind(this));
 		$('#loginBtn').on('click', login.bind(this));
 		$('#newPlayerBtn').on('click', createPlayer);
+		$('#logout').on('click', logout);
 		// test server buttons
 		$('#testGate').on('click', testGateServer);
 		$('#testConnector').on('click', testConnectorServer);
@@ -27,6 +30,16 @@ define(['jquery', 'config', 'switchManager', 'messageHandler'], function($, conf
 		$('#p2').on('click', autoLogin);
 	};
 	
+	function gotoRegister() {
+		$('#userRegFrame').removeClass('g-hide');
+		$('#userLoginFrame').addClass('g-hide');
+	}
+	
+	function gotoLogin() {
+		$('#userRegFrame').addClass('g-hide');
+		$('#userLoginFrame').removeClass('g-hide');
+	}
+	
 	/**
 	 * register
 	 */
@@ -34,6 +47,8 @@ define(['jquery', 'config', 'switchManager', 'messageHandler'], function($, conf
 		var username = $('#regName').val().trim();
 		var password = $('#regPwd').val().trim();
 		var cpassword = $('#regCpwd').val().trim();
+		$('#reg-pwd').val('');
+    $('#reg-cpwd').val('');
 		var httpHost = this.httpHost;
 		
 		if (!username) {
@@ -51,7 +66,7 @@ define(['jquery', 'config', 'switchManager', 'messageHandler'], function($, conf
 		}
 		
 		$.post(httpHost + 'register', {username: username, password: password}, function(data) {
-			alert('$.post result: ', data);
+			alertResponse(httpHost + 'register', data);
 			if (data.code === 501) {
 				alert("User already exists!");
 				return;
@@ -65,6 +80,7 @@ define(['jquery', 'config', 'switchManager', 'messageHandler'], function($, conf
 				alert(username + ' registered and logged in!');
 			});
 		});
+		
 	}
 	
 	/**
@@ -73,6 +89,7 @@ define(['jquery', 'config', 'switchManager', 'messageHandler'], function($, conf
 	function login() {
 		var username = $('#loginName').val().trim();
 		var password = $('#loginPwd').val().trim();
+		$('#loginPwd').val('');
 		var httpHost = this.httpHost;
 
 		if (!username) {
@@ -99,10 +116,10 @@ define(['jquery', 'config', 'switchManager', 'messageHandler'], function($, conf
 			}
 			
 			authEntry(data.uid, data.token, function() {
-				console.log("user login succeede.");
+				console.log("user login succeeded.");
 				alert(username + ' logged in!');
 			});
-		
+
 			// set username in localStorage
 			localStorage.setItem('username', username);
 		});
@@ -113,7 +130,6 @@ define(['jquery', 'config', 'switchManager', 'messageHandler'], function($, conf
 	 * authEntry
 	 */
 	function authEntry(uid, token, callback) {
-		alert('authEntry running\nuid='+uid+', token='+token);
 		queryEntry(uid, function(host, port) {
 			entry(host, port, token, callback);
 		});
@@ -130,8 +146,6 @@ define(['jquery', 'config', 'switchManager', 'messageHandler'], function($, conf
 	 *	}
 	 */
 	function queryEntry(uid, callback) {
-		alert('queryEntry running\n\ngate_host: '+config.GATE_HOST+'\ngate_port: '+config.GATE_PORT);
-
 		pomelo.init({host: config.GATE_HOST, port: config.GATE_PORT, log: true}, function() {
 			pomelo.request('gate.gateHandler.queryEntry', {uid: uid}, function(data) {
 				pomelo.disconnect();
@@ -144,8 +158,6 @@ define(['jquery', 'config', 'switchManager', 'messageHandler'], function($, conf
 				callback(data.host, data.port);
 			});
 		});
-		
-		//callback('192.168.239.140', '3011');
 	}
 	
 	/**
@@ -158,8 +170,6 @@ define(['jquery', 'config', 'switchManager', 'messageHandler'], function($, conf
 	 * 	}
 	 */
 	function entry(host, port, token, callback) {
-		alert('entry() running');
-		
 		// init socketClient
 		// TODO for development - 2/27/17 me: WHAT for development? host?
 		
@@ -218,12 +228,12 @@ define(['jquery', 'config', 'switchManager', 'messageHandler'], function($, conf
 		} else {
 			pomelo.request('connector.carModelHandler.createPlayer', {name: name}, function(data) {
 				if (data.code == 500) {
-					alert("Create player fails!");
+					alert("The name already exists!");
 					return;
 				}
 				
 				// alert the response from connector.entryHandler
-				alertResponse('connector.carModelHandler.createPlayer', data);
+				//alertResponse('connector.carModelHandler.createPlayer', data);
 				
 				// if returned player id is not valid ? 3/5/17 ME: in what condition this happens? i.e. this handles what situation?
 				if (data.player.id <= 0) {
@@ -241,7 +251,6 @@ define(['jquery', 'config', 'switchManager', 'messageHandler'], function($, conf
 	 * @param		{Object}	data	Player data
 	 */
 	function afterLogin(data) {
-		//alert("afterLogin running");
 		// enter scene !
 		var userData = data.user;	// 3/7/17: entryHandler.entry only responds {code, player}, no user
 		var playerData = data.player;
@@ -280,7 +289,6 @@ define(['jquery', 'config', 'switchManager', 'messageHandler'], function($, conf
 	 */
 	function enterScene() {
 		// 3/7/17: game-server does not run area Management for now, do it locally
-		//pomelo.request('area.playerHandler.enterScene', null, function(data) {// initiate the scene });
 		pomelo.request('area.playerHandler.enterScene', {content: 'Hello!'}, function(data) {
 			alertResponse('area.playerHandler.enterScene', data);
 			
@@ -295,8 +303,15 @@ define(['jquery', 'config', 'switchManager', 'messageHandler'], function($, conf
 			pomelo.request('area.playerHandler.update', msg, function(data) {
 				alertResponse('area.playerHandler.update', data);
 			});
+			/*
+			setInterval(function() {
+				pomelo.request('area.playerHandler.update', msg, function(data) {
+					alertResponse('area.playerHandler.update', data);
+				});
+			}, 200);
+			*/
 		});
-
+		
 	}
 	
 	/**
@@ -304,21 +319,6 @@ define(['jquery', 'config', 'switchManager', 'messageHandler'], function($, conf
 	 * route: gate.gateHandler.queryEntry
 	 */
 	function testGateServer() {
-		/*
-		pomelo.init({
-				host: '192.168.239.140',
-				port: 3014,
-				log: true
-			}, function() {
-				pomelo.request('gate.gateHandler.queryEntry', {uid: '0'}, function(data) {
-					pomelo.disconnect();
-					
-					// alert the response from gateHandler
-					alertResponse('gate.gateHandler.queryEntry', data);
-					
-				});
-			});
-		*/
 		var uid = '1';
 		var token = 'c8ab13f4bda17c7812ae1e47c2f69b63';
 		authEntry(uid, token, function(){ alert('authENtry done!'); });
@@ -377,6 +377,58 @@ define(['jquery', 'config', 'switchManager', 'messageHandler'], function($, conf
 		}
 		
 		authEntry(uid, tokens[uid - 1]);
+	}
+	
+	/**
+	 * Logout, send resquest to server tell the server to close the session
+	 * 3/12/17: or just pomelo.disconnect? - after relogin, p1 recieves twice msg of 'userLeave' once p2 left
+	 */
+	function logout() {
+		pomelo.disconnect();
+	};
+	 
+	/**
+	 * Benchmarking test functions 
+	 *
+	 * 3/16/17: cannot run in a single browser tab (next connection connects when previous connections remain open)
+	 *
+	 */
+	function benchmark() {
+		console.log('benchmarking test for ' + this.id);
+
+		var self = this;
+		var N = Number($('select[name="unit_concurrency"]').val());
+		
+		function noAuthEntry(uid, host, port) {
+		
+			if (host === '127.0.0.1') {
+				host = config.GATE_HOST;	// set the host of connector server accessible from outside client
+			}
+			
+			pomelo.init({host: host, port: port, log: true}, function() {
+			
+				switch(self.id) {
+				
+					case 'unit_connection':				
+						pomelo.request('connector.noAuthEntryHandler.entry', {uid: i}, function(data) {
+							alertResponse('connector.noAuthEntryHandler.entry', data);
+							console.log(i + ' connected: ' + data.code);
+						});
+						break;
+			
+					default: 
+						console.log('unknown benchmarking test function for', self.id)
+				}
+				
+			});
+		}
+		
+		for (var i = 1; i <= N; i++) {
+			var uid = i;
+			queryEntry(uid, function(host, port) {
+				noAuthEntry(uid, host, port);
+			});
+		}
 	}
 	
 	return clientManager;

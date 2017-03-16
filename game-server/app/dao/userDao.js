@@ -6,6 +6,7 @@ var User = require('../domain/account/user');
 var Player = require('../domain/entity/player');
 var consts = require('../consts/consts');
 var carDao = require('./carDao');
+var logger = require('pomelo-logger').getLogger(__filename);
 
 var userDao = module.exports;
 
@@ -228,7 +229,7 @@ userDao.createPlayer = function(uid, name, cb) {
 	// 3/6/17: kindId and kindName can be accessed from dataApi, to be implemented in future extension
 	var kindId = '0000';
 	var kindName = 'universal user';
-	var args = [uid, name, x, y, areaId, kindId, kindName];
+	var args = [uid, name, x, y, z, areaId, kindId, kindName];
 	
 	pomelo.app.get('dbclient').insert(sql, args, function(err, res) {
 		if (err !== null) {

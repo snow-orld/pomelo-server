@@ -3,5 +3,8 @@
 *.log
 *.swp
 */node_modules/*
+*/node_modules
 */node-log.log
 logs/*.log
+*/logs
+

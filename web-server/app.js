@@ -159,7 +159,6 @@ app.post('/login', function(req, res) {
 				res.send({code: 200, token: token, uid: user.id});
 			}
 		}); */
-		
 		var hash = bcrypt.hashSync(password, user.salt);
 		if (hash !== user.password) {
 			console.log('[ERROR]login: Wrong password!');
@@ -170,33 +169,16 @@ app.post('/login', function(req, res) {
 			//console.log('[DEBUG]login: generated token=', token);
 			res.send({code: 200, token: token, uid: user.id});
 		}
+		
 	});
 });
 
 // for test web-server responds to $.post
 app.post('/test', function(req, res) {
 	console.log('[DEBUG]routing at /test');
+	console.log('req.body is %j', req.body);
 	
-	var str = 'req body is: {\n';
-	for (var p in req.body) {
-		if (req.body.hasOwnProperty(p)) {
-			if (typeof req.body[p] == 'object') {
-				str += '    {\n';
-				for (var sp in req.body[p]) {
-					if (req.body[p].hasOwnProperty(sp)) {
-						str += '    ' + sp + ': ' + req.body[p][sp] + ',\n';
-					}
-				}
-				str += '}';
-			} else {
-				str += '    ' + p + ': ' + req.body[p] + ',\n';
-			}
-		}
-	}
-	str += '}';
-	console.log(str);
-	
-	res.json({code: 200, token: Token.create('1', Date.now(), secret), uid: '1'});
+	res.send({code: 200, token: Token.create('1', Date.now(), secret), uid: req.body.uid});
 });
 
 // Init mysql

@@ -3,12 +3,14 @@ var EntityType = require('../../consts/consts').EntityType;
 var utils = require('../../util/utils');
 var channelUtil = require('../../util/channelUtil');
 var logger = require('pomelo-logger').getLogger(__filename);
+var Timer = require('./timer');
+var aoiManager = require('pomelo-aoi');
 
 /**
  * Init areas
  *
  * 3/8/17 ME: for carSync demo, area only needs to keep track of entities in the scene 
- * and update them when recieved position change events (1Hz from client)
+ * and update them when recieved position change events (5Hz from client)
  *
  * @param	{Object} opts
  * @api public
@@ -24,6 +26,18 @@ var Instance = function(opts) {
 	this.channel = null;
 	
 	this.playerNum = 0;
+	
+	// broadcast interval
+	this.bcInterval = null;
+	
+	// Init AOI
+	this.aoi = aoiManager.getService(opts);
+	
+	this.timer = new Timer({
+		area: this,
+		interval: 100
+	});
+	
 };
 
 module.exports = Instance;
@@ -107,39 +121,14 @@ Instance.prototype.getPlayer = function(playerId) {
 
 /**
  * Get area entities in the whole area - 3/8/17 ME: LOP uses aoi to get the info as a optimization
- * 3/9/17 ME: Now only returns Player type entity, for the reason that I need to call player.GetInfo before pushed to result
  */
 Instance.prototype.getAreaInfo = function() {
 	var result = [];
 	for (var eid in this.entities) {
 			if (this.entities[eid].type == EntityType.PLAYER) {
-/*	
-			// DEBUG ~ begin
-			var debugStr = '[DEBUG]getAreaInfo@area in loop: player.entity ' + eid + ' pushed to result: {\n';
-			var entity = this.entities[eid].getInfo();
-			for (var p in entity) {
-				if (typeof entity[p] == 'object') {
-					debugStr += '  ' + p + ':  {\n';
-					for (var sp in entity[p]) {
-						if (typeof entity[p][sp] != 'function')
-							debugStr += '    ' + sp + ': ' + entity[p][sp] + ',\n';
-					}
-					debugStr += '  },\n';
-				} else if (typeof entity[p] != 'function')
-				{
-					debugStr += '  ' + p + ': ' + entity[p] + ',\n';
-				}
-			}
-			debugStr += '},\n';
-			console.log(debugStr);
-			// DEBUG ~ end
-*/
 			result.push(this.entities[eid].getInfo());
 		}
 	}
-	
-	// 3/9/17 player contains a set of area info as its child property, which inturn contains all players - this is why the this.update function entities[eid] = e causing a circular object error (?) --> use remove/add to update
-	// 3/9/17 ME: Q where does area get attached to Player?! A default property for Entity.
 	
 	return result;
 };
@@ -197,7 +186,7 @@ Instance.prototype.removeEntity = function(entityId) {
 	
 	// If the entity is a player, remove it
 	if (e.type === EntityType.PLAYER) {
-		this.getChannel().leave(e.userId, pomelo.app.getServerId());	// 3/9/17 this will shut down the client connection ? regardless globalChannel still has this entry? - The connection keeps alive after coding the enteryHandler.onUserLeave, playerRemote.playerLeave funcions
+		this.getChannel().leave(e.userId, e.serverId);	// 3/9/17 this will shut down the client connection ? regardless globalChannel still has this entry? - The connection keeps alive after coding the enteryHandler.onUserLeave, playerRemote.playerLeave funcions
 
 		delete players[e.id];
 		delete users[e.userId];
@@ -244,8 +233,17 @@ Instance.prototype.getAllPlayerUids = function(ignoreList) {
  */
 Instance.prototype.removePlayer = function(playerId) {
 	var entityId = this.players[playerId];
-	
 	if(!!entityId) {
 		this.removeEntity(entityId);
 	}
+};
+
+/**
+ * get entity by entityId from area
+ * called in timer.js getWatcherUids, who returns arrays of {uid, sid}
+ */
+Instance.prototype.getEntity = function(entityId) {
+	var entity = this.entitites[entityId];
+
+	return entity ? entity : null;
 };

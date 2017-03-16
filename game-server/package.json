@@ -8,6 +8,7 @@
     "generic-pool": "2.4.6",
     "mysql": "^2.13.0",
     "pomelo": "2.2.5",
+    "pomelo-aoi": "^0.3.34",
     "pomelo-logger": "^0.1.7",
     "pomelo-sync-plugin": "0.0.2"
   }

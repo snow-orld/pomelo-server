@@ -8,6 +8,10 @@
   font-family: arial;
 }
 
+.g-doc h3 {
+	font-size: 18px;
+}
+
 .g-banner {
   position: relative;
   width: 1000px;

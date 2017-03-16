@@ -15,7 +15,7 @@ var carDao = module.exports;
  *
  */
 carDao.createCar = function(playerId, cb) {
-	var sql = 'insert int Car (playerId, mass, width, height, length, wheelRadius, wheelHeight, wheelDepth) values (?,?,?,?,?,?,?,?)';
+	var sql = 'insert into Car (playerId, mass, width, height, length, wheelRadius, wheelHeight, wheelDepth) values (?,?,?,?,?,?,?,?)';
 	var args = [playerId, 150, 3, 1, 6, 1, -0.5, 0.5];
 	
 	pomelo.app.get('dbclient').insert(sql, args, function(err, res) {

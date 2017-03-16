@@ -17,7 +17,10 @@ var Car = function(opts) {
 	this.length = opts.length || 6,
 	this.wheelRadius = opts.wheelRadius || 1,
 	this.wheelHeight = opts.wheelHeight || -0.5,
-	this.wheelDepth = opts.wheelDepth || 0.5
+	this.wheelDepth = opts.wheelDepth || 0.5,
+	
+	this.velocity = opts.velocity || [0, 0, 0],
+	this.streerint = opts.steering || [0, 0, 0, 0]
 }
 
 util.inherits(Car, Persistent);

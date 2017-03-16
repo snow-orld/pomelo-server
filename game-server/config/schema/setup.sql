@@ -1,7 +1,7 @@
 # Dump of table User
 # ------------------------------------------
 
-#DROP TABLE IF EXISTS `User`;
+DROP TABLE IF EXISTS `User`;
 
 CREATE TABLE IF NOT EXISTS `User` (
 	`id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `User` (
 # Dump of table Player
 # ------------------------------------------
 
-#DROP TABLE IF EXISTS `Player`;
+DROP TABLE IF EXISTS `Player`;
 
 CREATE TABLE IF NOT EXISTS `Player` (
 	`id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS `Player` (
 # Dump of table Car
 # ------------------------------------------
 
-#DROP TABLE IF EXISTS `Car`;
+DROP TABLE IF EXISTS `Car`;
 
 CREATE TABLE IF NOT EXISTS `Car` (
 	`id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,

@@ -34,7 +34,7 @@ var Player = function(opts) {
 	
 	// player info including car info, which is used to render on clientside.
 	// not associated with session. like bag, it is stored in db in a separate table. But unlik bag, lik pos, it changes frequently
-	this.car = opts.car;	
+	this.car = opts.car;
 };
 
 util.inherits(Player, Character);

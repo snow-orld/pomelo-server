@@ -22,7 +22,7 @@ var handler = module.exports;
  * @api public
  */
 handler.enterScene = function(msg, session, next) {
-	var area = session.area;	// 3/7/18 ME: connector does no set area to session when bind sessions. where does it get set, areaServer - backend session? 3/8/18 ME: session.area is set in the area.playerFilter
+	var area = session.area;	// 3/7/18 ME: where does it get set, areaServer? 3/8/18 ME: session.area is set in the area.playerFilter
 	var playerId = session.get('playerId');
 	var areaId = session.get('areaId');
 	
@@ -36,34 +36,10 @@ handler.enterScene = function(msg, session, next) {
 			
 			return;
 		}
-		/*
-		// DEBUG ~ begin
-		var debugStr = '[DEBUG]enterScene @ area.playerHandler: get playerAllInfo is: {\n';
-		for (var p in player) {
-			if (typeof player[p] == 'object') {
-				debugStr += '  ' + p + ':  {\n';
-				for (var sp in player[p]) {
-					//if (typeof player[p][sp] != 'function')
-						debugStr += '    ' + sp + ': ' + player[p][sp] + ',\n';
-				}
-				debugStr += '  },\n';
-			} else if (typeof player[p] != 'function')
-			{
-				debugStr += '  ' + p + ': ' + player[p] + ',\n';
-			}
-		}
-		debugStr += '}\n';
-
-		console.log(debugStr);
-		// DEBUG ~ end
-		*/
+		
 		player.serverId = session.frontendId;
 		areaId = player.areaId;
 		
-		// !IMPORTANT
-		// 3/8/17 ME: MUST register chat status to keep the connection open, otherwise, without the following rpc, test button recieves the respond and then connection is disconnected due to client heartbeat timeout. FIND OUT the mechanism, i.e. what does this rpc do!
-		pomelo.app.rpc.chat.chatRemote.add(session, session.uid,
-			player.name, channelUtil.getAreaChannelName(areaId), null);
 		/*
 		var map = area.map;
 		
@@ -92,13 +68,6 @@ handler.enterScene = function(msg, session, next) {
 		*/
 				
 		// for carSync demo
-		/**
-		 * 3/9/17 ME: !Potential bug - MAKE SURE Zhou YJ deals with it.
-		 *
-		 * at client SIDE, if player already in scene, needs to check entities, server automatically reset the player's
-		 * position and other status info according to data stored in DB
-		 * client side needs to check to make sure re-enter scene has the expected effects shown in browser!
-		 */
 		var data = {
 			entities: area.getAreaInfo(),	// get entities in the area
 			curPlayer: player.getInfo()
@@ -125,7 +94,8 @@ handler.enterScene = function(msg, session, next) {
 		var msg = {player: player.getInfo()};
 		var ignoreList = {};
 		ignoreList[player.userId] = true;
-		messageService.pushMessageToArea(area, EVENT.USERENTERSCENE, msg, ignoreList);
+		//messageService.pushMessageToArea(area, EVENT.USERENTERSCENE, msg, ignoreList);
+		// 3/16/17: change to Server periodically broadcast getAreaInfo()
 		
 	});
 };
@@ -155,11 +125,26 @@ handler.update = function(msg, session, next) {
 	player.qz = quaternion[2];
 	player.qw = quaternion[3];
 	
+	player.car.velocity = msg.velocity;
+	player.car.steering = msg.steering;
+	
 	area.updateEntity(player);
 	
 	var ignoreList = {};
 	ignoreList[session.uid] = true;
-	messageService.pushMessageToArea(area, EVENT.UPDATE, msg, ignoreList);
+	//messageService.pushMessageToArea(area, EVENT.UPDATE, msg, ignoreList);
+	
+	// periodically broadcast
+	if (area.bcInterval == null) {
+		area.bcInterval = setInterval(function() {
+			messageService.pushMessageToArea(area, EVENT.UPDATE, {entities: area.getAreaInfo()}, null);
+			
+			if (area.playerNum == 0) {
+				clearInterval(area.bcInterval);
+				area.bcInterval = null;
+			}
+		}, consts.BROADCAST.INTERVAL);
+	}
 	
 	next(null, {code: 200});
 }; 

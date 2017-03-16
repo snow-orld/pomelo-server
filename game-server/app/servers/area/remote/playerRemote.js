@@ -32,7 +32,6 @@ PlayerRemote.prototype.playerLeave = function(args, cb) {
 	}
 	
 	// 3/9/17: update data to db - skipped
-	
 	area.removePlayer(playerId);
 	area.channel.pushMessage({route: EVENT.USERLEAVESCENE, code: 200, playerId: playerId});
 	utils.invokeCallback(cb);
