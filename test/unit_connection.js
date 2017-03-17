@@ -1,9 +1,12 @@
-var pomelo = require('pomelo-client');
+var pomelo = require('./build');
 var async = require('async');
-var config = require('./config');
 var CODE = require('../shared/code');
 
+var WebSocket = require('websocket-client');
+
 var concurrency = 1;
+var host = 'localhost';
+var port = 3014;
 
 if (process.argv[2]) {
 	concurrency = Number(process.argv[2]);
@@ -13,7 +16,7 @@ console.log('concurrency clients %d', concurrency);
 
 function queryEntry(uid, callback) {
 	console.log('queryEntry running')
-	pomelo.init({host: config.HOST, port: config.PORT, log: true}, function() {
+	pomelo.init({host: host, port: port, log: true}, function() {
 		
 		console.log('pomelo inited');
 		
@@ -39,6 +42,7 @@ function main() {
 			console.log('get host %s, port %d', host, port)
 		});
 	}
+	
 }
 
 main();

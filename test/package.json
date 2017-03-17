@@ -1,0 +1,18 @@
+{
+  "name": "pomelo-becnmarking-test",
+  "version": "0.0.1",
+  "description": "[pomelo client development](https://github.com/NetEase/pomelo/wiki/Client-development)",
+  "main": "unit_connection.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "X.M.",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^2.1.5",
+    "pomelo-protobuf": "^0.4.0",
+    "pomelo-protocol": "^0.1.6",
+    "websocket": "^1.0.24",
+    "websocket-client": "^1.0.0"
+  }
+}
