@@ -60,16 +60,13 @@ pomelo.init = function(params, cb){
     url +=  ':' + port;
   }
 
-	// debug for why queryEntry in clientManager does not call pomelo.init's callback
-	console.log('pomelo.init running: host=' + params.host + ', port=' + params.port + ', url = ' + url);
-
   handshakeBuffer.user = params.user;
   handshakeCallback = params.handshakeCallback;
   initWebSocket(url, cb);
 };
 
 var initWebSocket = function(url,cb) {
-  console.log('connect to ' + url);
+  //console.log('connect to ' + url);
   var onopen = function(event){  
     var obj = Package.encode(Package.TYPE_HANDSHAKE, Protocol.strencode(JSON.stringify(handshakeBuffer)));
     //console.log('\nsending obj=%j', obj);
@@ -103,7 +100,7 @@ pomelo.disconnect = function() {
   if(socket) {
     if(socket.disconnect) socket.disconnect();
     if(socket.close) socket.close();
-    console.log('disconnect');
+    //console.log('disconnect');
     socket = null;
   }
 
