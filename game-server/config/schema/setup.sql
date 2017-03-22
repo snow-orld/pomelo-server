@@ -33,9 +33,6 @@ CREATE TABLE IF NOT EXISTS `Player` (
 	`qy` float(32) DEFAULT '0',
 	`qz` float(32) DEFAULT '0',
 	`qw` float(32) DEFAULT '1',
-	/*optional interface for future use*/
-	`kindId` varchar(10) COLLATE utf8_unicode_ci DEFAULT '0000',
-	`kindName` varchar(30) COLLATE utf8_unicode_ci DEFAULT 'universal user',
 	PRIMARY KEY (`id`),
 	UNIQUE KEY `INDEX_GAME_NAME` (`name`),
 	KEY `INDEX_PLAYER_USER_ID` (`userId`)

@@ -1,6 +1,6 @@
 /**
  * Player Entity
- * According to schema, Player(id, userId, name, x, y, z, qx, qy, qz, qw, areaId, kindId, kindName)
+ * According to schema, Player(id, userId, name, x, y, z, qx, qy, qz, qw, areaId)
  */
 
 var pomelo = require('pomelo');
@@ -32,6 +32,9 @@ var Player = function(opts) {
 	this.qz = opts.qz;
 	this.qw = opts.qw;
 	
+	this.velocity = opts.velocity || [0, 0, 0],
+	this.streering = opts.steering || [0, 0, 0, 0]
+	
 	// player info including car info, which is used to render on clientside.
 	// not associated with session. like bag, it is stored in db in a separate table. But unlik bag, lik pos, it changes frequently
 	this.car = opts.car;
@@ -55,7 +58,6 @@ module.exports = Player;
  * where it deals with session after player first initiated
  * A: the returned json is used for setting session, since session.bind(uid) 's uid is from user (param) 's id, no need to return uid again
  *
- * 3/9/17 ME: strip() does not reutrn kindId, and kindName since clientside does not need them
  */
 Player.prototype.strip = function() {
 	return {
@@ -65,8 +67,8 @@ Player.prototype.strip = function() {
 		areadId: this.areaId,
 		position: [this.x, this.y, this.z],
 		quaternion: [this.qx, this.qy, this.qz, this.qw],
-		//kindId: this.kindId,
-		//kindName: this.kindName,
+		velocity: this.velocity,
+		steering: this.streering,
 		type: this.type	// not in DB, only in memory to diffirentiate Entities that appear on the map
 	}
 }

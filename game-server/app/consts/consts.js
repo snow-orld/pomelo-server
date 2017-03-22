@@ -6,7 +6,15 @@ module.exports = {
 	},
 	
 	EntityType: {
-		PLAYER:	'player'
+		PLAYER:	'player',
+		AUTODRIVE: 'AI'
+	},
+	
+	// 3/20/17: most openlly, every entity can be controlled by either player or AI (UE4), introducing pawnManager
+	// used in pawnManager.register(eids, playerId, controllerType)
+	ControllerType: {
+		PLAYER: 'playerController',
+		AI: 'AIController'
 	},
 	
 	// 3/5/17 ME: not sure how BornPlace.width/height relates to client view 
@@ -33,5 +41,6 @@ module.exports = {
 	
 	BROADCAST: {
 		INTERVAL: 200
-	}
+	}	
+
 }

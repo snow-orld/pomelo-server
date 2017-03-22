@@ -5,6 +5,8 @@ var channelUtil = require('../../util/channelUtil');
 var logger = require('pomelo-logger').getLogger(__filename);
 var Timer = require('./timer');
 var aoiManager = require('pomelo-aoi');
+var AutoDrive = require('../entity/autoDrive');
+var PawnManager = require('../entity/pawnManager');
 
 /**
  * Init areas
@@ -24,12 +26,18 @@ var Instance = function(opts) {
 	this.users = {};
 	this.entities = {};		// 3/8/17 ME: for now, player is the only type of entity in scene
 	this.channel = null;
-	
+		
 	this.playerNum = 0;
 	
 	// broadcast interval
 	this.bcInterval = null;
-	
+
+	// 3/19/17: mapping from AI entityId (auto drive car) to playerId
+	this.aiManagers = {}; // get updated in 'area.aiHandler.register'
+	this.AICARNUM = 4;
+	// 3/20/17: a new abstract level to bind playerController and actual character in area
+	this.pawnManager = new PawnManager({ area: this });
+
 	// Init AOI
 	this.aoi = aoiManager.getService(opts);
 	
@@ -38,6 +46,7 @@ var Instance = function(opts) {
 		interval: 100
 	});
 	
+	this.start();
 };
 
 module.exports = Instance;
@@ -48,7 +57,12 @@ module.exports = Instance;
 Instance.prototype.start = function() {
 	// aoiEventManger.addEvent
 	
-	// init aiManager
+	// init auto drive AI cars data, default their manager mapping this.ais[e.id] = null;
+	this.initAIs();
+	
+	// init pawn manager, manage the controlling access between player and characters in area
+	this.pawnManager.init();
+	
 	// start timer
 };
 
@@ -93,13 +107,13 @@ Instance.prototype.addEntity = function(e) {
 	//eventManager.addEvent(e);
 	
 	if (e.type === EntityType.PLAYER) {
-		this.getChannel().add(e.userId, e.serverId);
+		//this.getChannel().add(e.userId, e.serverId);	//3/19/17: Move to playerHandler.enterScene()
 	
 		players[e.id] = e.entityId;	// playerId -> entityId
 		users[e.userId] = e.id;			// userid -> playerId
 		this.playerNum++;
-	}
-		
+	} 
+			
 	return true;
 };
 
@@ -125,7 +139,10 @@ Instance.prototype.getPlayer = function(playerId) {
 Instance.prototype.getAreaInfo = function() {
 	var result = [];
 	for (var eid in this.entities) {
-			if (this.entities[eid].type == EntityType.PLAYER) {
+		if (this.entities[eid].type == EntityType.PLAYER) {
+			result.push(this.entities[eid].getInfo());
+		}
+		if (this.entities[eid].type == EntityType.AUTODRIVE) {
 			result.push(this.entities[eid].getInfo());
 		}
 	}
@@ -186,8 +203,8 @@ Instance.prototype.removeEntity = function(entityId) {
 	
 	// If the entity is a player, remove it
 	if (e.type === EntityType.PLAYER) {
-		this.getChannel().leave(e.userId, e.serverId);	// 3/9/17 this will shut down the client connection ? regardless globalChannel still has this entry? - The connection keeps alive after coding the enteryHandler.onUserLeave, playerRemote.playerLeave funcions
-
+		//this.getChannel().leave(e.userId, e.serverId); //3/19/17: move this to removePlayer()
+		
 		delete players[e.id];
 		delete users[e.userId];
 		
@@ -235,7 +252,11 @@ Instance.prototype.removePlayer = function(playerId) {
 	var entityId = this.players[playerId];
 	if(!!entityId) {
 		this.removeEntity(entityId);
+		
+		this.getChannel().leave(this.entities[entityId].userId, this.entities[entityId].serverId);	// 3/9/17 this will shut down the client connection ? regardless globalChannel still has this entry? - The connection keeps alive after coding the enteryHandler.onUserLeave, playerRemote.playerLeave funcions
 	}
+	
+	
 };
 
 /**
@@ -243,7 +264,61 @@ Instance.prototype.removePlayer = function(playerId) {
  * called in timer.js getWatcherUids, who returns arrays of {uid, sid}
  */
 Instance.prototype.getEntity = function(entityId) {
-	var entity = this.entitites[entityId];
+	var entity = this.entities[entityId];
 
 	return entity ? entity : null;
+};
+
+/**
+ * Init AI (auto drive car for now 3/19/17) cars' data in the scene
+ *
+ * Author: ME
+ * Created on:	3/19/17
+ * Modified on:	3/19/17
+ *
+ */
+Instance.prototype.initAIs = function() {
+	for (var i = 0; i < this.AICARNUM; i++) {
+		var autoDrive = new AutoDrive();
+		if (!this.addEntity(autoDrive)) {
+			logger.error(' init auto Drive for AIs failed ');
+		}
+	}
+};
+
+/**
+ * get all AI (autoDrive) entitiIds without an aiManager yet
+ *
+ * @return {Object}	List of autoDrive eids whose aiManager is null
+ *
+ * Author: ME
+ * Created on:	3/19/17
+ * Modified on:	3/19/17
+ *
+ */
+Instance.prototype.getAIs = function() {
+	var eids = [];
+	
+	for (var eid in this.entities) {
+		var entity = this.entities[eid];
+		if (entity.type == EntityType.AUTODRIVE && entity.aiManager == null) {
+			eids.push(eid);
+		}
+	}
+	
+	return eids;
+};
+
+/**
+ * add player to area channel
+ * called in playerHandler.enterScene (original lop add player to channel in addEntity when e.type === PLAYER)
+ *
+ * @param	{Object} player
+ *
+ * Author: ME
+ * Created on:	3/19/17
+ *
+ */
+Instance.prototype.addPlayerToChannel = function(player) {
+	this.getChannel().add(player.userId, player.serverId);
 };
