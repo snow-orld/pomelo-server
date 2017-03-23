@@ -145,15 +145,22 @@ userDao.createUser = function(username, passwrod, from ,cb) {
 		
 			var args = [username, hash, salt, from || '', 1, loginTime];
 			
-			pomelo.app.get('dbclient').insert(sql, args, function(err, res) {
-				if (err !== null) {
-					utils.invokeCallback(cb, {code: err.number, msg: err.message}, null);
-				}	else {
-					// 2/28/17 ME: should returned user.password be the plaintext or the hash?
-					var user = new User({id: res.insertId, name: username, password: hash, salt: salt, loginCount: 1, lastLoginTime: loginTime});
-					utils.invokeCallback(cb, null, user);
+			this.getUserByName(username, function(err, res) {
+				if (err == ' user does not exist ' && res == null) {
+					pomelo.app.get('dbclient').insert(sql, args, function(err, res) {
+						if (err !== null) {
+							utils.invokeCallback(cb, {code: err.number, msg: err.message}, null);
+						}	else {
+							// 2/28/17 ME: should returned user.password be the plaintext or the hash?
+							var user = new User({id: res.generated_keys[0], name: username, password: hash, salt: salt, loginCount: 1, lastLoginTime: loginTime});
+							utils.invokeCallback(cb, null, user);
+						}
+					});
+				} else {
+					utils.invokeCallback(cb, {code: 'ER_DUP_ENTRY'}, null);
 				}
-			});
+			});	
+					
 			
 		});
 	});
@@ -231,22 +238,30 @@ userDao.createPlayer = function(uid, name, cb) {
 	var kindName = 'universal user';
 	var args = [uid, name, x, y, z, areaId, kindId, kindName];
 	
-	pomelo.app.get('dbclient').insert(sql, args, function(err, res) {
-		if (err !== null) {
-			logger.error('create player failed!' +  err.message);
-			logger.error(err);
-			utils.invokeCallback(cb, err.message, null);
-		} else {
-			var player = new Player({
-				id: res.insertId,
-				userId: uid,
-				name: name,
-				// 3/5/17 ME: not spcifying x,y in lop. entity create lacks of x,y? OR new player is randomly spawn into map position?
-				// 3/6/17 A1: returned player is used for setting session, session does not need store position
-				kindId: kindId,
-				kindName: kindName
+	this.getPlayersByUid(uid, function(err, res) {
+		// if no player with uid exists in database yet
+		// player name duplicate check performed by upper level at carModelHandler
+		if (!err && res.length == 0) {
+			pomelo.app.get('dbclient').insert(sql, args, function(err, res) {
+				if (err !== null) {
+					logger.error('create player failed!' +  err.message);
+					logger.error(err);
+					utils.invokeCallback(cb, err.message, null);
+				} else {
+					var player = new Player({
+						id: res.generated_keys[0],
+						userId: uid,
+						name: name,
+						// 3/5/17 ME: not spcifying x,y in lop. entity create lacks of x,y? OR new player is randomly spawn into map position?
+						// 3/6/17 A1: returned player is used for setting session, session does not need store position
+						kindId: kindId,
+						kindName: kindName
+					});
+					utils.invokeCallback(cb, null, player);
+				}
 			});
-			utils.invokeCallback(cb, null, player);
+		} else {
+			utils.invokeCallback(cb, new Error(' player with this name already exists ', null), null);
 		}
 	});
 };

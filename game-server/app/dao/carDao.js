@@ -18,16 +18,26 @@ carDao.createCar = function(playerId, cb) {
 	var sql = 'insert into Car (playerId, mass, width, height, length, wheelRadius, wheelHeight, wheelDepth) values (?,?,?,?,?,?,?,?)';
 	var args = [playerId, 150, 3, 1, 6, 1, -0.5, 0.5];
 	
-	pomelo.app.get('dbclient').insert(sql, args, function(err, res) {
-		if (err) {
-			logger.error('create car for carDao failed! ' + err.stack);
-			utils.invokeCallback(cb, err, null);
+	console.log('[DEBUG] createCar @ carDao: playerId = %j', playerId);
+	
+	this.getCarByPlayerId(playerId, function(err, res) {
+		if (!!err && !res) {
+			// if car with the playerId does not exist in db yet, create new
+			pomelo.app.get('dbclient').insert(sql, args, function(err, res) {
+				if (err) {
+					logger.error('create car for carDao failed! ' + err.stack);
+					utils.invokeCallback(cb, err, null);
+				} else {
+					// 3/8/17 ME: it seems must create a new Car object to pass into callback
+					var car = new Car({id: res.generated_keys[0]});
+					utils.invokeCallback(cb, null, car);
+				}
+			});
 		} else {
-			// 3/8/17 ME: it seems must create a new Car object to pass into callback
-			var car = new Car({id: res.insertId});
-			utils.invokeCallback(cb, null, car);
+			utils.invokeCallback(cb, new Error(' car with the same playerId already exists '), null)
 		}
 	});
+			
 };
 
 /**
@@ -53,8 +63,8 @@ carDao.getCarByPlayerId = function(playerId, cb) {
 				//console.log('[DEBUG]getCarByPlayerId @ carDao: find result is ' + JSON.stringify(result));
 				cb(null, result);
 			} else {
-				logger.error('car does not exist!');
-				utils.invokeCallback(cb, new Error(' car does not exist ', null));
+				logger.warn('car does not exist!');
+				utils.invokeCallback(cb, new Error(' car does not exist ', null), null);
 			}
 		}
 	});

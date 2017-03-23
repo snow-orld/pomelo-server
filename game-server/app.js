@@ -13,6 +13,7 @@ app.set('name', 'demo');
 // gloable configuration
 app.configure('production|development', function() {
 	app.loadConfig('mysql', app.getBase() + '/../shared/config/mysql.json');
+	app.loadConfig('rethinkdb', app.getBase() + '/../shared/config/rethinkdb.json');
 /*	
 	// proxy configures
 	app.set('proxyConfig', {
@@ -79,7 +80,8 @@ app.configure('production|development', 'area', function() {
 
 // configure database
 app.configure('production|development', 'auth|connector|area', function() {
-	var dbclient = require('./app/dao/mysql/mysql').init(app);
+	//var dbclient = require('./app/dao/mysql/mysql').init(app);
+	var dbclient = require('./app/dao/rethinkdb/rethinkdb').init(app);
 	app.set('dbclient', dbclient);
 	app.use(sync, {sync: {path:__dirname + '/app/dao/mapping/', dbclient: dbclient}});
 });

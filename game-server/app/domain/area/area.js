@@ -250,6 +250,7 @@ Instance.prototype.getAllPlayerUids = function(ignoreList) {
  */
 Instance.prototype.removePlayer = function(playerId) {
 	var entityId = this.players[playerId];
+	//logger.warn('removePlayer @ area: entityId of playerId %j = %j', playerId, entityId);
 	if(!!entityId) {
 		this.removeEntity(entityId);
 		

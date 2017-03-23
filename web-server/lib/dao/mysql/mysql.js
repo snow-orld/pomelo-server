@@ -6,7 +6,7 @@ var _pool = null;
 var NND = {};
 
 /*
- * Innit sql connection pool
+ * Init sql connection pool
  * @param {Object} app The app for the server.
  */
 NND.init = function(){

@@ -8,6 +8,8 @@
     "everyauth": "0.3.0",
     "express": "3.4.8",
     "generic-pool": "2.4.6",
-    "mysql": ">=2.0"
+    "mysql": ">=2.0",
+    "rethinkdb": "^2.3.3",
+    "rethinkdb-pool": "^1.1.0"
   }
 }

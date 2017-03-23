@@ -39,33 +39,6 @@ handler.enterScene = function(msg, session, next) {
 		
 		player.serverId = session.frontendId;
 		areaId = player.areaId;
-		
-		/*
-		var map = area.map;
-		
-		// Reset the player's position if current pos is unreachable
-		if(!map.isReachable(player.x, player.y)) {
-			var pos = map.getBornPoint();
-			player.x = pos.x;
-			player.y = pos.y;
-		}
-		
-		var data = {
-			entities: area.getAreaInfo(),
-			curPlayer: player.getInfo(),
-			// check with Zhou YJ, what properties should class map conatin
-			map: {
-				name: map.name,
-				width: map.width,
-				height: map.height,
-				tileW: map.tileW,
-				tileH: map.tileH,
-				// 3/7/17: for 1st demo, no collisions, but map has waves on surface, does server care about it? seems no
-				weightMap: map.collisions	
-				// 3/8/17: for 1st demo, no map info needs to be returned
-			}
-		};
-		*/
 				
 		// for carSync demo
 		var data = {
@@ -79,7 +52,7 @@ handler.enterScene = function(msg, session, next) {
 		 * 3/9/17 ME: for carSync Demo this is not necessary. 
 		 * BUT, do we need to pushMessageToArea about new entities added to area if client side does not periodically send its 
 		 * status data to server? - probably yes. Do it right now. Make previously logged in user see a new car when new user enter
-		 */
+		 *//*
 		if (!area.addEntity(player)) {
 			logger.error('Add player to area failed! areadId : ' + player.areaId);
 			next(new Error('fail to add user into area'), {
@@ -96,8 +69,50 @@ handler.enterScene = function(msg, session, next) {
 		ignoreList[player.userId] = true;
 		//messageService.pushMessageToArea(area, EVENT.USERENTERSCENE, msg, ignoreList);
 		// 3/16/17: change to Server periodically broadcast getAreaInfo()
-		
+		*/
 	});
+};
+
+/**
+ * Player decide to be a player in the scene, add player as an entity to area!
+ *
+ * @param {Object} msg
+ * @param {Object} session
+ * @param {Function} next
+ * @api public
+ */
+handler.enterGame = function(msg, session, next) {
+	var area = session.area;
+	var playerId = session.get('playerId');
+	var areaId = session.get('areaId');
+	
+	userDao.getPlayerAllInfo(playerId, function(err, player) {
+		if (err || !player) {
+			logger.error('Get player for userDao failed! ' + err.stack);
+			next(new Error('fail to get player from database', {
+				route: msg.route,
+				cdoe: consts.MESSAGE.ERR
+			}));
+			
+			return;
+		}
+		
+		player.serverId = session.frontendId;
+		areaId = player.areaId;
+
+		if (!area.addEntity(player)) {
+			logger.error('Add player to area failed! areadId : ' + player.areaId);
+			next(new Error('fail to add user into area'), {
+				route: msg.route,
+				code: consts.MESSAGE.ERR
+			});
+
+			return;
+		}
+		
+		next(null, {code: 200});
+	});
+	
 };
 
 /**

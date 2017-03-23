@@ -38,7 +38,7 @@ Handler.prototype.createPlayer = function(msg, session, next) {
 		// create new player
 		userDao.createPlayer(uid, name, function(err, player) {
 			if (err) {
-				logger.err('[register] fail to invoke createPlayer for ' + err.stack);
+				logger.error('[register] fail to invoke createPlayer for ' + err.stack);
 				next(null, {code: consts.MESSAGE.ERR, error: err});
 				return;
 			} else {
@@ -64,11 +64,11 @@ Handler.prototype.createPlayer = function(msg, session, next) {
 			
 				carDao.createCar(player.id, function(err, car) {
 					if (err) {
-						logger.err(err.message);
+						logger.error(err.message);
 						next(null, {code: consts.MESSAGE.ERR, error: err});
 						return;
 					}
-					logger.warn('creating Player: player.strip() is %j', player.strip());
+					logger.debug('creating Player: player.strip() is %j', player.strip());
 					afterLogin(self.app, msg, session, {id: uid}, player.strip(), next);
 				});
 			}
@@ -82,11 +82,9 @@ Handler.prototype.createPlayer = function(msg, session, next) {
  *
  */
 var afterLogin = function(app, msg, session, user, player, next) {
-	logger.warn('afterLogin in carModelHandler');
 	async.waterfall([
 		// 3/5/17 ME: here it skips the get('sessionService').kick(uid, cb) compared to entryHandler. OK?
 		function(cb) {
-			logger.warn('afterLogin binding session %j', session)
 			session.bind(user.id, cb);
 		},
 		function(cb) {
@@ -97,7 +95,6 @@ var afterLogin = function(app, msg, session, user, player, next) {
 			session.set('playerId', player.id);
 			session.on('closed', onUserLeave);
 			session.pushAll(cb);
-			logger.warn('binded session in carModelHandler')
 		}/*,
 		function(cb) {
 			app.rpc.chat.chatRemote.add(session, user.id, player.name, channelUtil.getGlobalChannelName(), cb);

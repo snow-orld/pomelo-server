@@ -23,7 +23,7 @@ var logger = require('pomelo-logger').getLogger(__filename);
  */
 var Player = function(opts) {
 	Character.call(this, opts);
-	this.id = Number(opts.id);
+	this.id = opts.id;
 	this.type = EntityType.PLAYER;
 	this.userId = opts.userId;
 	this.name = opts.name;

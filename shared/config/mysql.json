@@ -1,6 +1,6 @@
 {
 	"development": {
-	  "host" : "localhost",
+	  "host" : "192.168.239.140",
 		"port" : "3306",
 		"database" : "Demo",
 		"user" : "demo",
@@ -8,7 +8,7 @@
 	},
 
 	"production": {
-	  "host" : "localhost",
+	  "host" : "192.168.239.140",
 		"port" : "3306",
 		"database" : "Demo",
 		"user" : "demo",

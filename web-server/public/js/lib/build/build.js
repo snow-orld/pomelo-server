@@ -1406,7 +1406,7 @@ require.register("pomelonode-pomelo-jsclient-websocket/lib/pomelo-client.js", fu
     }
 
 		// debug for why queryEntry in clientManager does not call pomelo.init's callback
-		console.log('pomelo.init running\n host = ' + params.host + '\n port = ' + params.port + '\n\n url = ' + url);
+		//console.log('pomelo.init running\n host = ' + params.host + '\n port = ' + params.port + '\n\n url = ' + url);
 
     handshakeBuffer.user = params.user;
     handshakeCallback = params.handshakeCallback;

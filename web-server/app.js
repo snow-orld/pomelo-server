@@ -5,6 +5,7 @@ var Token = require('../shared/token');
 var secret = require('../shared/config/session').secret;
 var userDao = require('./lib/dao/userDao');
 var mysql = require('./lib/dao/mysql/mysql');
+var rethinkdb = require('./lib/dao/rethinkdb/rethinkdb');
 //var everyauth = require('./lib/oauth');
 
 app.configure(function(){
@@ -108,7 +109,7 @@ app.post('/register', function(req, res) {
 				return;
 			}
 		} else {
-			console.log('A new user was created! --' + username);
+			console.log('A new user was created! --' + username + ' -- with id ' + user.id);
 			res.send({code: 200, token: Token.create(user.id, Date.now(), secret), uid: user.id});
 		}
 	});
@@ -183,6 +184,9 @@ app.post('/test', function(req, res) {
 
 // Init mysql
 mysql.init();
+
+// Init rethinkdb
+rethinkdb.init();
 
 app.listen(3001);
 

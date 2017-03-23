@@ -292,24 +292,33 @@ define(['jquery', 'config', 'switchManager', 'messageHandler'], function($, conf
 		pomelo.request('area.playerHandler.enterScene', {content: 'Hello!'}, function(data) {
 			alertResponse('area.playerHandler.enterScene', data);
 			
-			var msg = {
-				content: 'sync',
-				uuid : '1',
-				position: [100,0,100],
-				quaternion: [1,1,1,1],
-				velocity: [2,2,2],
-				steering: [3,3,3,3]
-			};
-			pomelo.request('area.playerHandler.update', msg, function(data) {
-				alertResponse('area.playerHandler.update', data);
+			pomelo.request('area.pawnHandler.register', {content: ['1', '2', '3', '4']}, function(data) {
+				alertResponse('area.pawnHandler.register', data);
 			});
-			/*
-			setInterval(function() {
+			
+			//pomelo.request('area.playerHandler.enterGame', null, function(data) {
+			//	alertResponse('area.playerHandler.enterGame', data);
+				
+				var msg = {
+					content: 'sync',
+					uuid : '1',
+					position: [100,0,100],
+					quaternion: [1,1,1,1],
+					velocity: [2,2,2],
+					steering: [3,3,3,3]
+				};/*
 				pomelo.request('area.playerHandler.update', msg, function(data) {
 					alertResponse('area.playerHandler.update', data);
-				});
-			}, 200);
-			*/
+				});*/
+				/*
+				setInterval(function() {
+					pomelo.request('area.playerHandler.update', msg, function(data) {
+						alertResponse('area.playerHandler.update', data);
+					});
+				}, 200);
+				*/
+
+			//});
 		});
 		
 	}
